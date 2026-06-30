@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sale Order — Histo Skin</title>
+<style>
+  :root {
+    --ink: #1e2522;
+    --ink-soft: #5b655f;
+    --paper: #faf8f3;
+    --card: #ffffff;
+    --line: #e4ded0;
+    --teal: #0f6e56;
+    --teal-deep: #085041;
+    --teal-soft: #e1f5ee;
+    --amber: #c98a2c;
+    --danger: #a32d2d;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(30,37,34,0.04), 0 8px 24px rgba(30,37,34,0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai", "Sarabun", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--paper);
+    position: relative;
+    padding-bottom: 40px;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 10;
+    border-bottom: 1px solid transparent;
+  }
+  .topbar.scrolled { border-bottom-color: var(--line); }
+
+  .back-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .back-btn svg { width: 18px; height: 18px; }
+  .back-btn:active { transform: scale(0.94); }
+
+  .topbar h1 {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .topbar .eyebrow {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  /* ---------- Sections / pages ---------- */
+  .page { display: none; padding: 4px 20px 20px; animation: fadeIn .25s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Field groups ---------- */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .field .hint { font-weight: 400; color: var(--ink-soft); font-size: 12px; }
+
+  input[type=text], input[type=tel], input[type=email], input[type=number], input[type=date] {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 15px;
+    background: var(--card);
+    color: var(--ink);
+    font-family: inherit;
+  }
+  input:focus { outline: 2px solid var(--teal); outline-offset: 1px; border-color: var(--teal); }
+
+  textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 64px;
+    background: var(--card);
+  }
+
+  /* ---------- Search row ---------- */
+  .search-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .08s ease, opacity .15s ease;
+  }
+  .btn:active { transform: scale(0.985); }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:disabled { background: #b9c4bf; cursor: not-allowed; }
+  .btn-secondary { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+  .btn-ghost { background: transparent; color: var(--teal-deep); border: 1px solid var(--teal-soft); }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+  .btn-row .btn { flex: 1; }
+
+  /* ---------- Customer found banner ---------- */
+  .found-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--teal-soft);
+    color: var(--teal-deep);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+
+  /* ---------- Radio pills (ประเภทลูกค้า) ---------- */
+  .pill-group { display: flex; flex-direction: column; gap: 8px; }
+  .pill {
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 14.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+  }
+  .pill.selected { border-color: var(--teal); background: var(--teal-soft); color: var(--teal-deep); font-weight: 600; }
+  .pill .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); flex-shrink: 0; }
+  .pill.selected .dot { border-color: var(--teal); background: radial-gradient(circle, var(--teal) 0 40%, transparent 42%); }
+  .other-input { margin-top: 8px; display: none; }
+  .other-input.show { display: block; }
+
+  /* ---------- Section header (product categories) ---------- */
+  .cat-header {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--teal-deep);
+    background: var(--teal-soft);
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 8px;
+    margin: 22px 0 12px;
+  }
+  .cat-header:first-of-type { margin-top: 6px; }
+
+  .product-row {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .product-name { font-size: 13.5px; font-weight: 600; line-height: 1.4; margin-bottom: 10px; }
+  .product-controls { display: flex; align-items: center; gap: 10px; }
+  .qty-label { font-size: 13px; color: var(--ink-soft); }
+  .qty-stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .qty-stepper button {
+    width: 34px; height: 34px; border: none; background: var(--card);
+    font-size: 17px; cursor: pointer; color: var(--teal-deep); font-weight: 600;
+  }
+  .qty-stepper button:active { background: var(--teal-soft); }
+  .qty-stepper input {
+    width: 44px; text-align: center; border: none; border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line); padding: 0; height: 34px; font-size: 14px;
+  }
+  .unit-label { font-size: 13px; color: var(--ink-soft); margin-left: 2px; }
+
+  /* ---------- Date field on product page ---------- */
+  .date-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 4px;
+  }
+
+  /* ---------- Summary page ---------- */
+  .summary-item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .summary-item .name { font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+  .summary-item .qty { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; }
+  .summary-item .price { font-size: 14.5px; font-weight: 700; color: var(--teal-deep); white-space: nowrap; }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 4px;
+    margin-top: 8px;
+    border-top: 1.5px solid var(--ink);
+  }
+  .total-row .label { font-size: 15px; font-weight: 600; }
+  .total-row .amount { font-size: 22px; font-weight: 700; }
+
+  .upload-box {
+    border: 1.5px dashed var(--line);
+    border-radius: 12px;
+    padding: 22px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--card);
+    margin-top: 8px;
+  }
+  .upload-box.has-file { border-style: solid; border-color: var(--teal); background: var(--teal-soft); }
+  .upload-box .icon { font-size: 26px; margin-bottom: 6px; }
+  .upload-box .text { font-size: 13.5px; color: var(--ink-soft); }
+  .upload-box.has-file .text { color: var(--teal-deep); font-weight: 600; }
+  .upload-preview { max-width: 100%; max-height: 160px; border-radius: 8px; margin-top: 10px; }
+  .required-mark { color: var(--danger); }
+
+  /* ---------- Success page ---------- */
+  .success-wrap { text-align: center; padding-top: 60px; }
+  .success-circle {
+    width: 132px; height: 132px; border-radius: 50%;
+    background: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px;
+    color: #fff; font-size: 17px; font-weight: 700; line-height: 1.5;
+  }
+  .success-code { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 36px; }
+  .success-code b { color: var(--ink); }
+
+  /* ---------- Toast / error ---------- */
+  .error-text { color: var(--danger); font-size: 12.5px; margin-top: 6px; display: none; }
+  .error-text.show { display: block; }
+
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(30,37,34,0.45);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .loading-overlay.show { display: flex; }
+  .loading-card {
+    background: #fff; border-radius: 14px; padding: 24px 32px;
+    font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px;
+  }
+  .spinner {
+    width: 18px; height: 18px; border: 2.5px solid var(--teal-soft);
+    border-top-color: var(--teal); border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (min-width: 540px) {
+    .app { margin-top: 24px; margin-bottom: 24px; border-radius: 20px; box-shadow: var(--shadow); min-height: calc(100vh - 48px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card"><div class="spinner"></div><span id="loadingText">กำลังบันทึก...</span></div>
+</div>
+
+<div class="app" id="app">
+
+  <!-- ============================================================ -->
+  <!-- PAGE 1: ค้นหาลูกค้า -->
+  <!-- ============================================================ -->
+  <div class="page active" id="page-search">
+    <div class="topbar">
+      <div>
+        <span class="eyebrow">Histo Skin</span>
+        <h1>Sale Order</h1>
+      </div>
+    </div>
+
+    <div style="padding: 8px 0 18px;">
+      <div class="search-card">
+        <div class="field">
+          <label>ชื่อลูกค้า</label>
+          <input type="text" id="searchName" placeholder="เช่น หมอปลา คางดำ">
+        </div>
+        <div class="field" style="margin-bottom:4px;">
+          <label>เบอร์ติดต่อ</label>
+          <input type="tel" id="searchPhone" placeholder="เช่น 099 999 9999">
+        </div>
+        <div class="error-text" id="searchError">กรุณากรอกชื่อหรือเบอร์โทรอย่างน้อย 1 ช่อง</div>
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn btn-primary" onclick="handleSearch()">ค้นหา</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 2: Checkout (ข้อมูลลูกค้า — ใช้ร่วมกันทั้งเดิม/ใหม่) -->
+  <!-- ============================================================ -->
+  <div class="page" id="page-checkout">
+    <div class="topbar">
+      <button class="back-btn" onclick="goPage('page-search')" aria-label="ย้อนกลับ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div>
+        <span class="eyebrow" id="checkoutEyebrow">ข้อมูลลูกค้า</span>
+        <h1 id="checkoutTitle">กรอกข้อมูลลูกค้า</h1>
+      </div>
+    </div>
+
+    <div id="foundBanner" class="found-banner" style="display:none;">
+      <span>✓</span><span>พบข้อมูลลูกค้านี้แล้ว ดึงข้อมูลล่าสุดมาให้อัตโนมัติ</span>
+    </div>
+
+    <div class="field">
+      <label>เซลล์ผู้รับผิดชอบ</label>
+      <input type="text" id="f_sellerName" placeholder="ชื่อเซลล์">
+    </div>
+    <div class="field">
+      <label>ชื่อคลินิก</label>
+      <input type="text" id="f_clinicName" placeholder="ชื่อคลินิก">
+    </div>
+    <div class="field">
+      <label>ชื่อบริษัท</label>
+      <input type="text" id="f_companyName" placeholder="ชื่อบริษัท">
+    </div>
+    <div class="field">
+      <label>ชื่อผู้ติดต่อ <span class="required-mark">*</span></label>
+      <input type="text" id="f_contactName" placeholder="ชื่อ-นามสกุล">
+    </div>
+    <div class="field">
+      <label>เบอร์โทร <span class="required-mark">*</span></label>
+      <input type="tel" id="f_phone" placeholder="099 999 9999">
+    </div>
+    <div class="field">
+      <label>ที่อยู่</label>
+      <input type="text" id="f_address" placeholder="ที่อยู่">
+    </div>
+    <div class="field">
+      <label>เขต</label>
+      <input type="text" id="f_district" placeholder="เขต/ซอย">
+    </div>
+    <div class="field">
+      <label>เลขที่ผู้เสียภาษี</label>
+      <input type="text" id="f_taxId" placeholder="เลขประจำตัวผู้เสียภาษี">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="f_email" placeholder="email@example.com">
+    </div>
+
+    <div class="field">
+      <label>ประเภทลูกค้า <span class="required-mark">*</span></label>
+      <div class="pill-group" id="customerTypeGroup">
+        <div class="pill" data-value="Clinic" onclick="selectCustomerType(this)"><span>Clinic</span><span class="dot"></span></div>
+        <div class="pill" data-value="Spa" onclick="selectCustomerType(this)"><span>Spa</span><span class="dot"></span></div>
+        <div class="pill" data-value="Distributor" onclick="selectCustomerType(this)"><span>Distributor</span><span class="dot"></span></div>
+        <div class="pill" data-value="Dealer" onclick="selectCustomerType(this)"><span>Dealer</span><span class="dot"></span></div>
+        <div class="pill" data-value="Beauty Salon" onclick="selectCustomerType(this)"><span>Beauty Salon</span><span class="dot"></span></div>
+        <div class="pill" data-value="Retail Shop" onclick="selectCustomerType(this)"><span>Retail Shop</span><span class="dot"></span></div>
+        <div class="pill" data-value="Online Seller" onclick="selectCustomerType(this)"><span>Online Seller</span><span class="dot"></span></div>
+        <div class="pill" data-value="other" onclick="selectCustomerType(this)"><span>other</span><span class="dot"></span></div>
+      </div>
+      <div class="other-input" id="otherInputWrap">
+        <input type="text" id="f_customerTypeOther" placeholder="ระบุประเภทลูกค้า">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>ที่อยู่จัดส่ง</label>
+      <input type="text" id="f_shippingAddress" placeholder="ที่อยู่สำหรับจัดส่งสินค้า">
+    </div>
+    <div class="field">
+      <label>Google Map link</label>
+      <input type="text" id="f_mapLink" placeholder="https://...">
+    </div>
+
+    <div class="cat-header" style="margin-top:24px;">ข้อมูลออกใบกำกับ</div>
+    <div class="field">
+      <label>ชื่อบริษัทออกใบกำกับ</label>
+      <input type="text" id="f_invoiceCompany" placeholder="ชื่อบริษัท">
+    </div>
+    <div class="field">
+      <label>สาขา</label>
+      <input type="text" id="f_invoiceBranch" placeholder="สาขา">
+    </div>
+    <div class="field">
+      <label>ที่อยู่ (ออกใบกำกับ)</label>
+      <input type="text" id="f_invoiceAddress" placeholder="ที่อยู่">
+    </div>
+    <div class="field">
+      <label>Remark</label>
+      <textarea id="f_remark" placeholder="หมายเหตุเพิ่มเติม"></textarea>
+    </div>
+
+    <div class="error-text" id="checkoutError">กรุณากรอกชื่อผู้ติดต่อ เบอร์โทร และเลือกประเภทลูกค้า</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="handleCheckoutNext()">ถัดไป</button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 3: รายการสินค้า -->
+  <!-- ============================================================ -->
+  <div class="page" id="page-products">
+    <div class="topbar">
+      <button class="back-btn" onclick="goPage('page-checkout')" aria-label="ย้อนกลับ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div>
+        <span class="eyebrow">ขั้นตอนที่ 2</span>
+        <h1>รายการสินค้า</h1>
+      </div>
+    </div>
+
+    <div class="date-card">
+      <div class="field" style="margin-bottom:0;">
+        <label>Date Order (D/M/Y) <span class="required-mark">*</span></label>
+        <input type="text" id="f_orderDate" placeholder="เช่น 30/06/69">
+      </div>
+    </div>
+
+    <div id="productListContainer"></div>
+
+    <div class="error-text" id="productsError">กรุณาระบุวันที่และเลือกสินค้าอย่างน้อย 1 รายการ</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="handleProductsNext()">บันทึกคำสั่งซื้อ</button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 4: สรุปรายการ -->
+  <!-- ============================================================ -->
+  <div class="page" id="page-summary">
+    <div class="topbar">
+      <button class="back-btn" onclick="goPage('page-products')" aria-label="ย้อนกลับ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div>
+        <span class="eyebrow">ขั้นตอนสุดท้าย</span>
+        <h1>สรุปรายการ</h1>
+      </div>
+    </div>
+
+    <div id="summaryItemsContainer"></div>
+
+    <div class="total-row">
+      <span class="label">Total Price</span>
+      <span class="amount" id="summaryTotal">0 บาท</span>
+    </div>
+
+    <div class="field" style="margin-top:22px;">
+      <label>Slip/Bill แนบรูป <span class="required-mark">*</span></label>
+      <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📎</div>
+        <div class="text" id="uploadText">แตะเพื่อแนบรูป Slip/Bill</div>
+        <img id="uploadPreview" class="upload-preview" style="display:none;">
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
+      <div class="error-text" id="uploadError">กรุณาแนบรูป Slip/Bill ก่อนบันทึก</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="handleSaveOrder()">บันทึก</button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PAGE 5: บันทึกสำเร็จ -->
+  <!-- ============================================================ -->
+  <div class="page" id="page-success">
+    <div class="success-wrap">
+      <div class="success-circle">บันทึก<br>สำเร็จ</div>
+      <div class="success-code">เลขที่ออเดอร์ <b id="successOrderCode">-</b></div>
+      <div class="btn-row" style="padding: 0 20px;">
+        <button class="btn btn-secondary" onclick="resetAndGoHome()">กลับหน้าหลัก</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =====================================================================
+   CONFIG
+   ===================================================================== */
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbykcQZ6AXHXk99SmldewTeJb9_qlyJ6Z_nZkSAY2vEaznqDx0y-C1LTzGltPT1AFfSj/exec';
+
+const PRICE_LIST = {
+  'CLEANING': {
+    'WATER-MAX MILK CLEANSER เช็ดเครื่องสำอางค์ 1200 ml': 3400,
+    'WATER-MAX FOAM CLEANSER โฟมล้างหน้า 1200 ml': 3200,
+    'WATER-MAX FOAM CLEANSER โฟมล้างหน้า 200 ml': 1240,
+    'ALPHA CLEANSING FOAM โฟมล้างหน้า 200 ml': 1380,
+  },
+  'AMPOULE': {
+    'HYALURON COMPLEX AMPOULE 83 แอมพูล 50 ml': 1490,
+    'AZULENE COMPLEX AMPOULE 72 แอมพูล 50 ml': 1490,
+    'VITA C COMPLEX AMPOULE 47 แอมพูล 50 ml': 1490,
+  },
+  'บำรุงผิว': {
+    'WATER-MAX HYDRATING MOISTURIZER 80 ml': 1530,
+    'CENTELLA GREEN CREAM ครีมปลอบประโลมผิว 50 g': 1250,
+    'GAMMA CRYSTAL SERUM 80 ml': 1610,
+    'DELTA ACTIVE CREAM ครีมบำรุง 80 ml': 1190,
+    'OMEGA SPOT CARE SOLUTION ครีมแต้มสิว 80 ml': 860,
+  },
+  'MASK': {
+    'HISTO LIGHTENING CREAM MASK 250g': 1380,
+    'NATURAL LIGHTENING PLUS MODELING MASK 1 kg': 1840,
+    'PEPPERMINT COOL PLUS MODELING MASK 1 kg': 1840,
+  }
+};
+
+/* =====================================================================
+   STATE — เก็บข้อมูลทั้งหมดของ flow นี้ไว้ในตัวแปรเดียว
+   ===================================================================== */
+let state = {
+  customer: {},
+  customerType: '',
+  customerTypeOther: '',
+  orderDate: '',
+  products: {},      // { ชื่อสินค้า: จำนวน }
+  receiptFile: null, // { base64, mimeType }
+};
+
+/* =====================================================================
+   NAVIGATION
+   ===================================================================== */
+function goPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function showLoading(text) {
+  document.getElementById('loadingText').textContent = text || 'กำลังดำเนินการ...';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+/* =====================================================================
+   PAGE 1 → ค้นหาลูกค้า
+   ===================================================================== */
+async function handleSearch() {
+  const name = document.getElementById('searchName').value.trim();
+  const phone = document.getElementById('searchPhone').value.trim();
+  const errEl = document.getElementById('searchError');
+
+  if (!name && !phone) {
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+
+  const keyword = phone || name;
+  showLoading('กำลังค้นหา...');
+
+  try {
+    const res = await fetch(`${WEB_APP_URL}?action=searchCustomer&keyword=${encodeURIComponent(keyword)}`);
+    const result = await res.json();
+    hideLoading();
+
+    resetCheckoutForm();
+
+    if (result.found) {
+      fillCheckoutForm(result.data);
+      document.getElementById('foundBanner').style.display = 'flex';
+      document.getElementById('checkoutEyebrow').textContent = 'พบลูกค้าเดิม';
+      document.getElementById('checkoutTitle').textContent = 'ตรวจสอบ/แก้ไขข้อมูล';
+    } else {
+      document.getElementById('foundBanner').style.display = 'none';
+      document.getElementById('checkoutEyebrow').textContent = 'ลูกค้าใหม่';
+      document.getElementById('checkoutTitle').textContent = 'กรอกข้อมูลลูกค้า';
+      // เผื่อ user เคยพิมพ์ชื่อ/เบอร์ไว้ในช่องค้นหา ใส่ต่อให้เลย
+      if (name) document.getElementById('f_contactName').value = name;
+      if (phone) document.getElementById('f_phone').value = phone;
+    }
+
+    goPage('page-checkout');
+  } catch (err) {
+    hideLoading();
+    alert('เกิดข้อผิดพลาดในการค้นหา: ' + err.message);
+  }
+}
+
+function resetCheckoutForm() {
+  ['f_sellerName','f_clinicName','f_companyName','f_contactName','f_phone','f_address',
+   'f_district','f_taxId','f_email','f_shippingAddress','f_mapLink','f_invoiceCompany',
+   'f_invoiceBranch','f_invoiceAddress','f_remark','f_customerTypeOther'
+  ].forEach(id => document.getElementById(id).value = '');
+
+  document.querySelectorAll('#customerTypeGroup .pill').forEach(p => p.classList.remove('selected'));
+  document.getElementById('otherInputWrap').classList.remove('show');
+  state.customerType = '';
+  state.customerTypeOther = '';
+}
+
+function fillCheckoutForm(data) {
+  const map = {
+    f_sellerName: 'เซลล์ผู้รับผิดชอบ',
+    f_clinicName: 'ชื่อคลินิก',
+    f_companyName: 'ชื่อบริษัท',
+    f_contactName: 'ชื่อผู้ติดต่อ',
+    f_phone: 'เบอร์โทร',
+    f_address: 'ที่อยู่',
+    f_district: 'เขต',
+    f_taxId: 'เลขที่ผู้เสียภาษี',
+    f_email: 'Email',
+    f_shippingAddress: 'ที่อยู่จัดส่ง',
+    f_mapLink: 'Google Map link',
+  };
+  Object.entries(map).forEach(([fieldId, sheetKey]) => {
+    const val = data[sheetKey] || data[sheetKey.trim()] || '';
+    document.getElementById(fieldId).value = val;
+  });
+
+  // invoice fields — header มีช่องว่างปนอยู่บ้าง จึงลองหาแบบยืดหยุ่น
+  const keys = Object.keys(data);
+  const findVal = (partial) => {
+    const k = keys.find(k => k.replace(/\s/g,'').includes(partial));
+    return k ? data[k] : '';
+  };
+  document.getElementById('f_invoiceCompany').value = findVal('ชื่อบริษัทออกใบกำกับ');
+  document.getElementById('f_invoiceBranch').value = findVal('สาขา');
+  document.getElementById('f_invoiceAddress').value = data['ที่อยู่'] || '';
+  document.getElementById('f_remark').value = data['Remark'] || '';
+
+  // ประเภทลูกค้า
+  const typeRaw = (data['ประเภทลูกค้า'] || '').trim();
+  if (typeRaw.startsWith('อื่นๆ')) {
+    selectPillByValue('other');
+    document.getElementById('f_customerTypeOther').value = typeRaw.replace(/^อื่นๆ:?\s*/, '');
+  } else if (typeRaw) {
+    selectPillByValue(typeRaw);
+  }
+}
+
+function selectPillByValue(value) {
+  const pill = document.querySelector(`#customerTypeGroup .pill[data-value="${CSS.escape(value)}"]`);
+  if (pill) selectCustomerType(pill);
+}
+
+/* =====================================================================
+   PAGE 2 → ประเภทลูกค้า (radio + other)
+   ===================================================================== */
+function selectCustomerType(el) {
+  document.querySelectorAll('#customerTypeGroup .pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  state.customerType = el.dataset.value;
+
+  const otherWrap = document.getElementById('otherInputWrap');
+  if (state.customerType === 'other') {
+    otherWrap.classList.add('show');
+  } else {
+    otherWrap.classList.remove('show');
+    document.getElementById('f_customerTypeOther').value = '';
+  }
+}
+
+function handleCheckoutNext() {
+  const contactName = document.getElementById('f_contactName').value.trim();
+  const phone = document.getElementById('f_phone').value.trim();
+  const errEl = document.getElementById('checkoutError');
+
+  if (!contactName || !phone || !state.customerType) {
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+
+  // เก็บข้อมูลลูกค้าทั้งหมดไว้ใน state
+  state.customer = {
+    sellerName: document.getElementById('f_sellerName').value.trim(),
+    clinicName: document.getElementById('f_clinicName').value.trim(),
+    companyName: document.getElementById('f_companyName').value.trim(),
+    contactName: contactName,
+    phone: phone,
+    address: document.getElementById('f_address').value.trim(),
+    district: document.getElementById('f_district').value.trim(),
+    taxId: document.getElementById('f_taxId').value.trim(),
+    email: document.getElementById('f_email').value.trim(),
+    shippingAddress: document.getElementById('f_shippingAddress').value.trim(),
+    mapLink: document.getElementById('f_mapLink').value.trim(),
+    invoiceCompany: document.getElementById('f_invoiceCompany').value.trim(),
+    invoiceBranch: document.getElementById('f_invoiceBranch').value.trim(),
+    invoiceAddress: document.getElementById('f_invoiceAddress').value.trim(),
+    remark: document.getElementById('f_remark').value.trim(),
+  };
+  state.customerTypeOther = document.getElementById('f_customerTypeOther').value.trim();
+
+  saveCustomerToServer();
+}
+
+async function saveCustomerToServer() {
+  showLoading('กำลังบันทึกข้อมูลลูกค้า...');
+  try {
+    const payload = {
+      ...state.customer,
+      customerType: state.customerType,
+      customerTypeOther: state.customerTypeOther,
+    };
+    await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'saveCustomer', payload })
+    });
+    hideLoading();
+    buildProductList();
+    goPage('page-products');
+  } catch (err) {
+    hideLoading();
+    alert('บันทึกข้อมูลลูกค้าไม่สำเร็จ: ' + err.message);
+  }
+}
+
+/* =====================================================================
+   PAGE 3 → รายการสินค้า
+   ===================================================================== */
+function buildProductList() {
+  const container = document.getElementById('productListContainer');
+  container.innerHTML = '';
+
+  // คืนค่าวันที่เดิมถ้ามี
+  document.getElementById('f_orderDate').value = state.orderDate || '';
+
+  Object.entries(PRICE_LIST).forEach(([category, products]) => {
+    const catEl = document.createElement('div');
+    catEl.className = 'cat-header';
+    catEl.textContent = category;
+    container.appendChild(catEl);
+
+    Object.entries(products).forEach(([name, price]) => {
+      const qty = state.products[name] || 0;
+
+      const row = document.createElement('div');
+      row.className = 'product-row';
+      row.innerHTML = `
+        <div class="product-name">${name}</div>
+        <div class="product-controls">
+          <span class="qty-label">จำนวน</span>
+          <div class="qty-stepper">
+            <button type="button" onclick="stepQty('${escapeAttr(name)}', -1)">−</button>
+            <input type="number" min="0" value="${qty}" data-product="${escapeAttr(name)}"
+                   oninput="setQty('${escapeAttr(name)}', this.value)">
+            <button type="button" onclick="stepQty('${escapeAttr(name)}', 1)">+</button>
+          </div>
+          <span class="unit-label">ขวด</span>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  });
+}
+
+function escapeAttr(str) {
+  return str.replace(/'/g, "\\'");
+}
+
+function setQty(productName, value) {
+  const qty = Math.max(0, parseInt(value) || 0);
+  state.products[productName] = qty;
+  const input = document.querySelector(`input[data-product="${CSS.escape(productName)}"]`);
+  if (input) input.value = qty;
+}
+
+function stepQty(productName, delta) {
+  const current = state.products[productName] || 0;
+  setQty(productName, current + delta);
+}
+
+function handleProductsNext() {
+  const orderDate = document.getElementById('f_orderDate').value.trim();
+  const errEl = document.getElementById('productsError');
+
+  const hasAnyProduct = Object.values(state.products).some(q => q > 0);
+
+  if (!orderDate || !hasAnyProduct) {
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+
+  state.orderDate = orderDate;
+  buildSummary();
+  goPage('page-summary');
+}
+
+/* =====================================================================
+   PAGE 4 → สรุปรายการ
+   ===================================================================== */
+function getFlatPriceList() {
+  let flat = {};
+  Object.values(PRICE_LIST).forEach(cat => Object.assign(flat, cat));
+  return flat;
+}
+
+function buildSummary() {
+  const flatPrices = getFlatPriceList();
+  const container = document.getElementById('summaryItemsContainer');
+  container.innerHTML = '';
+
+  let total = 0;
+  Object.entries(state.products).forEach(([name, qty]) => {
+    if (qty <= 0) return;
+    const subtotal = flatPrices[name] * qty;
+    total += subtotal;
+
+    const item = document.createElement('div');
+    item.className = 'summary-item';
+    item.innerHTML = `
+      <div>
+        <div class="name">${name}</div>
+        <div class="qty">จำนวน ${qty} ขวด</div>
+      </div>
+      <div class="price">${subtotal.toLocaleString()} บาท</div>
+    `;
+    container.appendChild(item);
+  });
+
+  document.getElementById('summaryTotal').textContent = total.toLocaleString() + ' บาท';
+
+  // คืนรูปเดิมถ้าเคยแนบไว้แล้วย้อนกลับมา
+  if (state.receiptFile) {
+    showUploadPreview(state.receiptFile.dataUrl);
+  } else {
+    resetUploadBox();
+  }
+}
+
+/* =====================================================================
+   แนบรูป Slip/Bill
+   ===================================================================== */
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const base64 = dataUrl.split(',')[1];
+
+    state.receiptFile = {
+      base64: base64,
+      mimeType: file.type,
+      dataUrl: dataUrl
+    };
+
+    showUploadPreview(dataUrl);
+    document.getElementById('uploadError').classList.remove('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function showUploadPreview(dataUrl) {
+  const box = document.getElementById('uploadBox');
+  box.classList.add('has-file');
+  document.getElementById('uploadText').textContent = 'แนบรูปแล้ว แตะเพื่อเปลี่ยนรูป';
+  const img = document.getElementById('uploadPreview');
+  img.src = dataUrl;
+  img.style.display = 'block';
+}
+
+function resetUploadBox() {
+  const box = document.getElementById('uploadBox');
+  box.classList.remove('has-file');
+  document.getElementById('uploadText').textContent = 'แตะเพื่อแนบรูป Slip/Bill';
+  document.getElementById('uploadPreview').style.display = 'none';
+}
+
+/* =====================================================================
+   บันทึก Order จริง (POST ไปที่ Apps Script)
+   ===================================================================== */
+async function handleSaveOrder() {
+  const errEl = document.getElementById('uploadError');
+
+  if (!state.receiptFile) {
+    errEl.classList.add('show');
+    return;
+  }
+  errEl.classList.remove('show');
+
+  showLoading('กำลังบันทึกคำสั่งซื้อ...');
+
+  try {
+    const payload = {
+      orderDate: state.orderDate,
+      phone: state.customer.phone,
+      contactName: state.customer.contactName,
+      sellerName: state.customer.sellerName,
+      products: state.products,
+      receiptImage: {
+        base64: state.receiptFile.base64,
+        mimeType: state.receiptFile.mimeType
+      }
+    };
+
+    const res = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'saveOrder', payload })
+    });
+    const result = await res.json();
+    hideLoading();
+
+    if (result.success) {
+      document.getElementById('successOrderCode').textContent = result.orderCode;
+      goPage('page-success');
+    } else {
+      alert('บันทึกไม่สำเร็จ: ' + (result.error || 'ไม่ทราบสาเหตุ'));
+    }
+  } catch (err) {
+    hideLoading();
+    alert('เกิดข้อผิดพลาด: ' + err.message);
+  }
+}
+
+/* =====================================================================
+   กลับหน้าหลัก — เคลียร์ state ทั้งหมด
+   ===================================================================== */
+function resetAndGoHome() {
+  state = {
+    customer: {},
+    customerType: '',
+    customerTypeOther: '',
+    orderDate: '',
+    products: {},
+    receiptFile: null,
+  };
+  document.getElementById('searchName').value = '';
+  document.getElementById('searchPhone').value = '';
+  document.getElementById('searchError').classList.remove('show');
+  resetCheckoutForm();
+  goPage('page-search');
+}
+</script>
+
+</body>
+</html>
