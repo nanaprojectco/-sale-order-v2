@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sale Order — Beauty Science</title>
+<title>Sale Order — Science &amp; Beauty</title>
 <style>
   :root {
     --ink: #1e2522;
@@ -301,19 +301,6 @@
     font-size: 15px; font-weight: 600; text-align: right; color: var(--ink);
   }
   .special-price-unit { font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
-    border: 1.5px dashed var(--line);
-    border-radius: 12px;
-    padding: 22px;
-    text-align: center;
-    cursor: pointer;
-    background: var(--card);
-    margin-top: 8px;
-  }
-  .upload-box.has-file { border-style: solid; border-color: var(--teal); background: var(--teal-soft); }
-  .upload-box .icon { font-size: 26px; margin-bottom: 6px; }
-  .upload-box .text { font-size: 13.5px; color: var(--ink-soft); }
-  .upload-box.has-file .text { color: var(--teal-deep); font-weight: 600; }
-  .upload-preview { max-width: 100%; max-height: 160px; border-radius: 8px; margin-top: 10px; }
   .required-mark { color: var(--danger); }
 
   /* ---------- Success page ---------- */
@@ -367,7 +354,7 @@
   <div class="page active" id="page-search">
     <div class="topbar">
       <div>
-        <span class="eyebrow">Beauty Science</span>
+        <span class="eyebrow">Science &amp; Beauty</span>
         <h1>Sale Order</h1>
       </div>
     </div>
@@ -450,8 +437,8 @@
       <div class="pill-group" id="customerTypeGroup">
         <div class="pill" data-value="Clinic" onclick="selectCustomerType(this)"><span>Clinic</span><span class="dot"></span></div>
         <div class="pill" data-value="Spa" onclick="selectCustomerType(this)"><span>Spa</span><span class="dot"></span></div>
-        <div class="pill" data-value="Distributor" onclick="selectCustomerType(this)"><span>Distributor</span><span class="dot"></span></div>
-        <div class="pill" data-value="Dealer" onclick="selectCustomerType(this)"><span>Dealer</span><span class="dot"></span></div>
+        <div class="pill" data-value="Distributor / Dealer" onclick="selectCustomerType(this)"><span>Distributor / Dealer</span><span class="dot"></span></div>
+        <div class="pill" data-value="Hospital" onclick="selectCustomerType(this)"><span>Hospital</span><span class="dot"></span></div>
         <div class="pill" data-value="Beauty Salon" onclick="selectCustomerType(this)"><span>Beauty Salon</span><span class="dot"></span></div>
         <div class="pill" data-value="Retail Shop" onclick="selectCustomerType(this)"><span>Retail Shop</span><span class="dot"></span></div>
         <div class="pill" data-value="Online Seller" onclick="selectCustomerType(this)"><span>Online Seller</span><span class="dot"></span></div>
@@ -555,7 +542,7 @@
         <div class="promo-radio" onclick="selectPromo(this, 10)">
           <span class="dot" id="dot-10"></span>
           <div class="promo-info">
-            <span class="promo-cond">Min Order 5,000.-</span>
+            <span class="promo-cond">B2C Min. Order 5,000.-</span>
             <span class="promo-disc">Get Discount 10%</span>
           </div>
         </div>
@@ -563,7 +550,7 @@
         <div class="promo-radio" onclick="selectPromo(this, 25)">
           <span class="dot" id="dot-25"></span>
           <div class="promo-info">
-            <span class="promo-cond">Min Order 12,000.-</span>
+            <span class="promo-cond">B2B Min. Order 12,000.-</span>
             <span class="promo-disc">Get Discount 25%</span>
           </div>
         </div>
@@ -662,7 +649,6 @@ let state = {
   orderDate: '',
   orderDateRaw: '',
   products: {},
-  receiptFile: null,
   promoPercent: 0,    // % ส่วนลด (0 = ไม่ลด)
 };
 
@@ -1044,46 +1030,6 @@ function updatePromoDisplay() {
 }
 
 /* =====================================================================
-   แนบรูป Slip/Bill
-   ===================================================================== */
-function handleFileSelect(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    const base64 = dataUrl.split(',')[1];
-
-    state.receiptFile = {
-      base64: base64,
-      mimeType: file.type,
-      dataUrl: dataUrl
-    };
-
-    showUploadPreview(dataUrl);
-    document.getElementById('uploadError').classList.remove('show');
-  };
-  reader.readAsDataURL(file);
-}
-
-function showUploadPreview(dataUrl) {
-  const box = document.getElementById('uploadBox');
-  box.classList.add('has-file');
-  document.getElementById('uploadText').textContent = 'แนบรูปแล้ว แตะเพื่อเปลี่ยนรูป';
-  const img = document.getElementById('uploadPreview');
-  img.src = dataUrl;
-  img.style.display = 'block';
-}
-
-function resetUploadBox() {
-  const box = document.getElementById('uploadBox');
-  box.classList.remove('has-file');
-  document.getElementById('uploadText').textContent = 'แตะเพื่อแนบรูป Slip/Bill';
-  document.getElementById('uploadPreview').style.display = 'none';
-}
-
-/* =====================================================================
    บันทึก Order จริง (POST ไปที่ Apps Script)
    ===================================================================== */
 async function handleSaveOrder() {
@@ -1135,7 +1081,6 @@ function resetAndGoHome() {
     orderDate: '',
     orderDateRaw: '',
     products: {},
-    receiptFile: null,
     promoPercent: 0,
     summaryTotal: 0,
     finalTotal: 0,
