@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sale Order — Histo Skin</title>
+<title>Sale Order — Beauty Science</title>
 <style>
   :root {
     --ink: #1e2522;
@@ -257,7 +257,50 @@
   .total-row .label { font-size: 15px; font-weight: 600; }
   .total-row .amount { font-size: 22px; font-weight: 700; }
 
-  .upload-box {
+  .promo-wrap {
+    margin-top: 20px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .promo-label { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+  .promo-group { display: flex; flex-direction: column; gap: 14px; }
+
+  .promo-radio {
+    display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none;
+  }
+  .promo-radio .dot {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid #bbb;
+    flex-shrink: 0; transition: border-color .15s, background .15s;
+  }
+  .promo-radio.selected .dot {
+    border-color: var(--teal);
+    background: radial-gradient(circle, var(--teal) 0 40%, transparent 42%);
+  }
+  .promo-info { display: flex; flex-direction: column; }
+  .promo-cond { font-size: 14px; color: var(--ink); }
+  .promo-disc { font-size: 13px; color: var(--teal-deep); font-weight: 600; margin-top: 1px; }
+
+  .special-input-wrap {
+    display: flex; align-items: center; gap: 8px;
+    margin-left: 32px; margin-top: 4px;
+  }
+  .special-input-wrap input {
+    width: 80px; text-align: center;
+  }
+  .pct-label { font-size: 14px; color: var(--ink-soft); }
+
+  .special-price-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+  }
+  .special-price-label { font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
+  .special-price-box {
+    flex: 1; background: #f0f0f0; border-radius: 8px; padding: 10px 14px;
+    font-size: 15px; font-weight: 600; text-align: right; color: var(--ink);
+  }
+  .special-price-unit { font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
     border: 1.5px dashed var(--line);
     border-radius: 12px;
     padding: 22px;
@@ -324,7 +367,7 @@
   <div class="page active" id="page-search">
     <div class="topbar">
       <div>
-        <span class="eyebrow">Histo Skin</span>
+        <span class="eyebrow">Beauty Science</span>
         <h1>Sale Order</h1>
       </div>
     </div>
@@ -366,15 +409,15 @@
     </div>
 
     <div class="field">
-      <label>เซลล์ผู้รับผิดชอบ</label>
+      <label>เซลล์ผู้รับผิดชอบ <span class="required-mark">*</span></label>
       <input type="text" id="f_sellerName" placeholder="ชื่อเซลล์">
     </div>
     <div class="field">
-      <label>ชื่อคลินิก</label>
+      <label>ชื่อคลินิก <span class="required-mark">*</span></label>
       <input type="text" id="f_clinicName" placeholder="ชื่อคลินิก">
     </div>
     <div class="field">
-      <label>ชื่อบริษัท</label>
+      <label>ชื่อบริษัท <span class="required-mark">*</span></label>
       <input type="text" id="f_companyName" placeholder="ชื่อบริษัท">
     </div>
     <div class="field">
@@ -386,19 +429,19 @@
       <input type="tel" id="f_phone" placeholder="099 999 9999">
     </div>
     <div class="field">
-      <label>ที่อยู่</label>
+      <label>ที่อยู่ <span class="required-mark">*</span></label>
       <input type="text" id="f_address" placeholder="ที่อยู่">
     </div>
     <div class="field">
-      <label>เขต</label>
+      <label>เขต <span class="required-mark">*</span></label>
       <input type="text" id="f_district" placeholder="เขต/ซอย">
     </div>
     <div class="field">
-      <label>เลขที่ผู้เสียภาษี</label>
+      <label>เลขที่ผู้เสียภาษี <span class="required-mark">*</span></label>
       <input type="text" id="f_taxId" placeholder="เลขประจำตัวผู้เสียภาษี">
     </div>
     <div class="field">
-      <label>Email</label>
+      <label>Email <span class="required-mark">*</span></label>
       <input type="email" id="f_email" placeholder="email@example.com">
     </div>
 
@@ -469,8 +512,8 @@
 
     <div class="date-card">
       <div class="field" style="margin-bottom:0;">
-        <label>Date Order (D/M/Y) <span class="required-mark">*</span></label>
-        <input type="text" id="f_orderDate" placeholder="เช่น 30/06/69">
+        <label>Date Order <span class="required-mark">*</span></label>
+        <input type="date" id="f_orderDate">
       </div>
     </div>
 
@@ -500,19 +543,61 @@
     <div id="summaryItemsContainer"></div>
 
     <div class="total-row">
-      <span class="label">Total Price</span>
+      <span class="label">ราคาเต็ม</span>
       <span class="amount" id="summaryTotal">0 บาท</span>
     </div>
 
-    <div class="field" style="margin-top:22px;">
-      <label>Slip/Bill แนบรูป <span class="required-mark">*</span></label>
-      <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
-        <div class="icon">📎</div>
-        <div class="text" id="uploadText">แตะเพื่อแนบรูป Slip/Bill</div>
-        <img id="uploadPreview" class="upload-preview" style="display:none;">
+    <!-- โปรโมชั่น / ส่วนลด -->
+    <div class="promo-wrap">
+      <div class="promo-label">Promotion</div>
+      <div class="promo-group">
+
+        <div class="promo-radio" onclick="selectPromo(this, 10)">
+          <span class="dot" id="dot-10"></span>
+          <div class="promo-info">
+            <span class="promo-cond">Min Order 5,000.-</span>
+            <span class="promo-disc">Get Discount 10%</span>
+          </div>
+        </div>
+
+        <div class="promo-radio" onclick="selectPromo(this, 25)">
+          <span class="dot" id="dot-25"></span>
+          <div class="promo-info">
+            <span class="promo-cond">Min Order 12,000.-</span>
+            <span class="promo-disc">Get Discount 25%</span>
+          </div>
+        </div>
+
+        <div class="promo-radio" onclick="selectPromo(this, 35)">
+          <span class="dot" id="dot-35"></span>
+          <div class="promo-info">
+            <span class="promo-cond">Min Order 480,000.-</span>
+            <span class="promo-disc">Get Discount 35%</span>
+          </div>
+        </div>
+
+        <div class="promo-radio" onclick="selectPromo(this, 'special')">
+          <span class="dot" id="dot-special"></span>
+          <div class="promo-info">
+            <span class="promo-cond">Special Discount</span>
+          </div>
+        </div>
+
+        <div class="special-input-wrap" id="specialInputWrap" style="display:none;">
+          <input type="number" id="promoCustomInput" placeholder="0" min="0" max="100"
+                 oninput="handleCustomPromo(this.value)">
+          <span class="pct-label">%</span>
+        </div>
+
       </div>
-      <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
-      <div class="error-text" id="uploadError">กรุณาแนบรูป Slip/Bill ก่อนบันทึก</div>
+
+      <div class="special-price-row">
+        <span class="special-price-label">Special Price</span>
+        <div class="special-price-box">
+          <span id="specialPriceValue">-</span>
+        </div>
+        <span class="special-price-unit">บาท</span>
+      </div>
     </div>
 
     <div class="btn-row">
@@ -539,7 +624,7 @@
 /* =====================================================================
    CONFIG
    ===================================================================== */
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbykcQZ6AXHXk99SmldewTeJb9_qlyJ6Z_nZkSAY2vEaznqDx0y-C1LTzGltPT1AFfSj/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby8kF5xC2Niy6fs5Rwz-GQLE6gzVfzZsAhs3SDoSufLSJucExnxukQ8i9w4qIbGbK5U/exec';
 
 const PRICE_LIST = {
   'CLEANING': {
@@ -575,8 +660,10 @@ let state = {
   customerType: '',
   customerTypeOther: '',
   orderDate: '',
-  products: {},      // { ชื่อสินค้า: จำนวน }
-  receiptFile: null, // { base64, mimeType }
+  orderDateRaw: '',
+  products: {},
+  receiptFile: null,
+  promoPercent: 0,    // % ส่วนลด (0 = ไม่ลด)
 };
 
 /* =====================================================================
@@ -654,37 +741,36 @@ function resetCheckoutForm() {
 }
 
 function fillCheckoutForm(data) {
+  // normalize key: trim ช่องว่างออกก่อนเทียบ เพราะ header ใน Sheet อาจมีช่องว่างติดอยู่
+  const normalized = {};
+  Object.keys(data).forEach(k => { normalized[k.trim()] = data[k]; });
+
   const map = {
-    f_sellerName: 'เซลล์ผู้รับผิดชอบ',
-    f_clinicName: 'ชื่อคลินิก',
-    f_companyName: 'ชื่อบริษัท',
-    f_contactName: 'ชื่อผู้ติดต่อ',
-    f_phone: 'เบอร์โทร',
-    f_address: 'ที่อยู่',
-    f_district: 'เขต',
-    f_taxId: 'เลขที่ผู้เสียภาษี',
-    f_email: 'Email',
+    f_sellerName:      'เซลล์ผู้รับผิดชอบ',
+    f_contactName:     'ชื่อผู้ติดต่อ',
+    f_clinicName:      'ชื่อคลินิก',
+    f_phone:           'เบอร์โทร',
+    f_companyName:     'ชื่อบริษัท',
+    f_address:         'ที่อยู่',
+    f_district:        'เขต',
+    f_taxId:           'เลขที่ผู้เสียภาษี',
+    f_email:           'Email',
     f_shippingAddress: 'ที่อยู่จัดส่ง',
-    f_mapLink: 'Google Map link',
+    f_mapLink:         'Google Map link',
+    f_invoiceCompany:  'ชื่อบริษัทออกใบกำกับ',
+    f_invoiceBranch:   'สาขา',
+    f_invoiceAddress:  'ที่อยู่ (ออกใบกำกับ)',
+    f_remark:          'Remark',
   };
+
   Object.entries(map).forEach(([fieldId, sheetKey]) => {
-    const val = data[sheetKey] || data[sheetKey.trim()] || '';
-    document.getElementById(fieldId).value = val;
+    const val = normalized[sheetKey] !== undefined ? normalized[sheetKey] : '';
+    const el = document.getElementById(fieldId);
+    if (el) el.value = val;
   });
 
-  // invoice fields — header มีช่องว่างปนอยู่บ้าง จึงลองหาแบบยืดหยุ่น
-  const keys = Object.keys(data);
-  const findVal = (partial) => {
-    const k = keys.find(k => k.replace(/\s/g,'').includes(partial));
-    return k ? data[k] : '';
-  };
-  document.getElementById('f_invoiceCompany').value = findVal('ชื่อบริษัทออกใบกำกับ');
-  document.getElementById('f_invoiceBranch').value = findVal('สาขา');
-  document.getElementById('f_invoiceAddress').value = data['ที่อยู่'] || '';
-  document.getElementById('f_remark').value = data['Remark'] || '';
-
   // ประเภทลูกค้า
-  const typeRaw = (data['ประเภทลูกค้า'] || '').trim();
+  const typeRaw = (normalized['ประเภทลูกค้า'] || '').trim();
   if (typeRaw.startsWith('อื่นๆ')) {
     selectPillByValue('other');
     document.getElementById('f_customerTypeOther').value = typeRaw.replace(/^อื่นๆ:?\s*/, '');
@@ -716,33 +802,64 @@ function selectCustomerType(el) {
 }
 
 function handleCheckoutNext() {
-  const contactName = document.getElementById('f_contactName').value.trim();
-  const phone = document.getElementById('f_phone').value.trim();
   const errEl = document.getElementById('checkoutError');
 
-  if (!contactName || !phone || !state.customerType) {
+  // field ที่บังคับกรอกทุกข้อ
+  const required = [
+    { id: 'f_sellerName',  label: 'เซลล์ผู้รับผิดชอบ' },
+    { id: 'f_contactName', label: 'ชื่อผู้ติดต่อ' },
+    { id: 'f_clinicName',  label: 'ชื่อคลินิก' },
+    { id: 'f_phone',       label: 'เบอร์โทร' },
+    { id: 'f_companyName', label: 'ชื่อบริษัท' },
+    { id: 'f_address',     label: 'ที่อยู่' },
+    { id: 'f_district',    label: 'เขต' },
+    { id: 'f_taxId',       label: 'เลขที่ผู้เสียภาษี' },
+    { id: 'f_email',       label: 'Email' },
+  ];
+
+  // เช็คว่า field ไหนยังว่างอยู่
+  const missing = required.filter(f => !document.getElementById(f.id).value.trim());
+
+  // เช็ค ประเภทลูกค้า
+  const noType = !state.customerType;
+
+  if (missing.length > 0 || noType) {
+    // ไฮไลต์ช่องที่ว่าง
+    required.forEach(f => {
+      const el = document.getElementById(f.id);
+      el.style.borderColor = !el.value.trim() ? 'var(--danger)' : '';
+    });
+
+    const missingLabels = missing.map(f => f.label).concat(noType ? ['ประเภทลูกค้า'] : []);
+    errEl.textContent = 'กรุณากรอก: ' + missingLabels.join(', ');
     errEl.classList.add('show');
+    // scroll ขึ้นไปหาช่องแรกที่ว่าง
+    if (missing.length > 0) {
+      document.getElementById(missing[0].id).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     return;
   }
-  errEl.classList.remove('show');
 
-  // เก็บข้อมูลลูกค้าทั้งหมดไว้ใน state
+  // ล้าง error ทั้งหมด
+  errEl.classList.remove('show');
+  required.forEach(f => { document.getElementById(f.id).style.borderColor = ''; });
+
   state.customer = {
-    sellerName: document.getElementById('f_sellerName').value.trim(),
-    clinicName: document.getElementById('f_clinicName').value.trim(),
-    companyName: document.getElementById('f_companyName').value.trim(),
-    contactName: contactName,
-    phone: phone,
-    address: document.getElementById('f_address').value.trim(),
-    district: document.getElementById('f_district').value.trim(),
-    taxId: document.getElementById('f_taxId').value.trim(),
-    email: document.getElementById('f_email').value.trim(),
+    sellerName:      document.getElementById('f_sellerName').value.trim(),
+    clinicName:      document.getElementById('f_clinicName').value.trim(),
+    companyName:     document.getElementById('f_companyName').value.trim(),
+    contactName:     document.getElementById('f_contactName').value.trim(),
+    phone:           document.getElementById('f_phone').value.trim(),
+    address:         document.getElementById('f_address').value.trim(),
+    district:        document.getElementById('f_district').value.trim(),
+    taxId:           document.getElementById('f_taxId').value.trim(),
+    email:           document.getElementById('f_email').value.trim(),
     shippingAddress: document.getElementById('f_shippingAddress').value.trim(),
-    mapLink: document.getElementById('f_mapLink').value.trim(),
-    invoiceCompany: document.getElementById('f_invoiceCompany').value.trim(),
-    invoiceBranch: document.getElementById('f_invoiceBranch').value.trim(),
-    invoiceAddress: document.getElementById('f_invoiceAddress').value.trim(),
-    remark: document.getElementById('f_remark').value.trim(),
+    mapLink:         document.getElementById('f_mapLink').value.trim(),
+    invoiceCompany:  document.getElementById('f_invoiceCompany').value.trim(),
+    invoiceBranch:   document.getElementById('f_invoiceBranch').value.trim(),
+    invoiceAddress:  document.getElementById('f_invoiceAddress').value.trim(),
+    remark:          document.getElementById('f_remark').value.trim(),
   };
   state.customerTypeOther = document.getElementById('f_customerTypeOther').value.trim();
 
@@ -778,7 +895,7 @@ function buildProductList() {
   container.innerHTML = '';
 
   // คืนค่าวันที่เดิมถ้ามี
-  document.getElementById('f_orderDate').value = state.orderDate || '';
+  document.getElementById('f_orderDate').value = state.orderDateRaw || '';
 
   Object.entries(PRICE_LIST).forEach(([category, products]) => {
     const catEl = document.createElement('div');
@@ -826,20 +943,28 @@ function stepQty(productName, delta) {
 }
 
 function handleProductsNext() {
-  const orderDate = document.getElementById('f_orderDate').value.trim();
+  const rawDate = document.getElementById('f_orderDate').value; // YYYY-MM-DD
   const errEl = document.getElementById('productsError');
 
   const hasAnyProduct = Object.values(state.products).some(q => q > 0);
 
-  if (!orderDate || !hasAnyProduct) {
+  if (!rawDate || !hasAnyProduct) {
     errEl.classList.add('show');
     return;
   }
   errEl.classList.remove('show');
 
-  state.orderDate = orderDate;
+  state.orderDateRaw = rawDate;
+  state.orderDate = formatDateToThai(rawDate);
   buildSummary();
   goPage('page-summary');
+}
+
+// แปลง "2026-06-30" -> "30/6/2569" (ปี พ.ศ.)
+function formatDateToThai(isoDate) {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const buddhistYear = y + 543;
+  return `${d}/${m}/${buddhistYear}`;
 }
 
 /* =====================================================================
@@ -874,13 +999,62 @@ function buildSummary() {
     container.appendChild(item);
   });
 
+  state.summaryTotal = total;
   document.getElementById('summaryTotal').textContent = total.toLocaleString() + ' บาท';
 
-  // คืนรูปเดิมถ้าเคยแนบไว้แล้วย้อนกลับมา
+  // คืนค่า promo เดิมถ้ามี
+  updatePromoDisplay();
+
   if (state.receiptFile) {
     showUploadPreview(state.receiptFile.dataUrl);
   } else {
     resetUploadBox();
+  }
+}
+
+// เลือก promo radio
+function selectPromo(el, value) {
+  // ล้าง selected ทั้งหมด
+  document.querySelectorAll('.promo-radio').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const specialWrap = document.getElementById('specialInputWrap');
+
+  if (value === 'special') {
+    specialWrap.style.display = 'flex';
+    const customVal = parseFloat(document.getElementById('promoCustomInput').value) || 0;
+    state.promoPercent = customVal;
+  } else {
+    specialWrap.style.display = 'none';
+    document.getElementById('promoCustomInput').value = '';
+    state.promoPercent = parseFloat(value) || 0;
+  }
+
+  updatePromoDisplay();
+}
+
+// พิมพ์ % เองใน Special Discount
+function handleCustomPromo(value) {
+  const pct = Math.min(100, Math.max(0, parseFloat(value) || 0));
+  state.promoPercent = pct;
+  updatePromoDisplay();
+}
+
+// อัปเดตแสดงผล Special Price
+function updatePromoDisplay() {
+  const total = state.summaryTotal || 0;
+  const pct = state.promoPercent || 0;
+  const discount = Math.round(total * pct / 100);
+  const finalTotal = total - discount;
+
+  state.finalTotal = finalTotal;
+  state.discountAmount = discount;
+
+  const priceEl = document.getElementById('specialPriceValue');
+  if (pct > 0) {
+    priceEl.textContent = finalTotal.toLocaleString() + '.00';
+  } else {
+    priceEl.textContent = '-';
   }
 }
 
@@ -928,14 +1102,6 @@ function resetUploadBox() {
    บันทึก Order จริง (POST ไปที่ Apps Script)
    ===================================================================== */
 async function handleSaveOrder() {
-  const errEl = document.getElementById('uploadError');
-
-  if (!state.receiptFile) {
-    errEl.classList.add('show');
-    return;
-  }
-  errEl.classList.remove('show');
-
   showLoading('กำลังบันทึกคำสั่งซื้อ...');
 
   try {
@@ -945,10 +1111,10 @@ async function handleSaveOrder() {
       contactName: state.customer.contactName,
       sellerName: state.customer.sellerName,
       products: state.products,
-      receiptImage: {
-        base64: state.receiptFile.base64,
-        mimeType: state.receiptFile.mimeType
-      }
+      promoPercent: state.promoPercent || 0,
+      discountAmount: state.discountAmount || 0,
+      totalBeforeDiscount: state.summaryTotal || 0,
+      totalAfterDiscount: state.finalTotal || state.summaryTotal || 0,
     };
 
     const res = await fetch(WEB_APP_URL, {
@@ -979,8 +1145,13 @@ function resetAndGoHome() {
     customerType: '',
     customerTypeOther: '',
     orderDate: '',
+    orderDateRaw: '',
     products: {},
     receiptFile: null,
+    promoPercent: 0,
+    summaryTotal: 0,
+    finalTotal: 0,
+    discountAmount: 0,
   };
   document.getElementById('searchName').value = '';
   document.getElementById('searchPhone').value = '';
