@@ -863,30 +863,9 @@ function handleCheckoutNext() {
   };
   state.customerTypeOther = document.getElementById('f_customerTypeOther').value.trim();
 
-  saveCustomerToServer();
-}
-
-async function saveCustomerToServer() {
-  showLoading('กำลังบันทึกข้อมูลลูกค้า...');
-  try {
-    const payload = {
-      ...state.customer,
-      customerType: state.customerType,
-      customerTypeOther: state.customerTypeOther,
-    };
-    const res = await fetch(WEB_APP_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'saveCustomer', payload })
-    });
-    const result = await res.json();
-    hideLoading();
-    if (result.success && result.orderCode) state.orderCode = result.orderCode;
-    buildProductList();
-    goPage('page-products');
-  } catch (err) {
-    hideLoading();
-    alert('บันทึกข้อมูลลูกค้าไม่สำเร็จ: ' + err.message);
-  }
+  // ไม่บันทึกลูกค้าตอนนี้ — รอบันทึกพร้อมกับ Order ตอนกด "บันทึก"
+  buildProductList();
+  goPage('page-products');
 }
 
 /* =====================================================================
@@ -1111,12 +1090,14 @@ async function handleSaveOrder() {
   showLoading('กำลังบันทึกคำสั่งซื้อ...');
 
   try {
+    // รวมข้อมูลลูกค้า + Order ส่งครั้งเดียว → Backend generate orderCode เดียวให้ทั้ง 2 sheet
     const payload = {
-      orderCode: state.orderCode || null,
+      // ข้อมูลลูกค้า
+      ...state.customer,
+      customerType: state.customerType,
+      customerTypeOther: state.customerTypeOther,
+      // ข้อมูล Order
       orderDate: state.orderDate,
-      phone: state.customer.phone,
-      contactName: state.customer.contactName,
-      sellerName: state.customer.sellerName,
       products: state.products,
       promoPercent: state.promoPercent || 0,
       discountAmount: state.discountAmount || 0,
@@ -1126,7 +1107,7 @@ async function handleSaveOrder() {
 
     const res = await fetch(WEB_APP_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'saveOrder', payload })
+      body: JSON.stringify({ action: 'saveCustomerAndOrder', payload })
     });
     const result = await res.json();
     hideLoading();
