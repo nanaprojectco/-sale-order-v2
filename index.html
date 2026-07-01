@@ -741,33 +741,53 @@ function resetCheckoutForm() {
 }
 
 function fillCheckoutForm(data) {
-  // normalize key: trim ช่องว่างออกก่อนเทียบ เพราะ header ใน Sheet อาจมีช่องว่างติดอยู่
+  // normalize key: trim ช่องว่างออกก่อนเทียบ
   const normalized = {};
   Object.keys(data).forEach(k => { normalized[k.trim()] = data[k]; });
 
-  const map = {
-    f_sellerName:      'เซลล์ผู้รับผิดชอบ',
-    f_contactName:     'ชื่อผู้ติดต่อ',
-    f_clinicName:      'ชื่อคลินิก',
-    f_phone:           'เบอร์โทร',
-    f_companyName:     'ชื่อบริษัท',
-    f_address:         'ที่อยู่',
-    f_district:        'เขต',
-    f_taxId:           'เลขที่ผู้เสียภาษี',
-    f_email:           'Email',
-    f_shippingAddress: 'ที่อยู่จัดส่ง',
-    f_mapLink:         'Google Map link',
-    f_invoiceCompany:  'ชื่อบริษัทออกใบกำกับ',
-    f_invoiceBranch:   'สาขา',
-    f_invoiceAddress:  'ที่อยู่ (ออกใบกำกับ)',
-    f_remark:          'Remark',
+  // mapping ตาม header ของ Customers sheet จริง:
+  // A:Code Order, B:เซลล์ผู้รับผิดชอบ, C:ชื่อผู้ติดต่อ, D:ชื่อคลินิก,
+  // E:เบอร์โทร, F:ชื่อบริษัท, G:ที่อยู่, H:เขต, I:เลขที่ผู้เสียภาษี,
+  // J:Email, K:ประเภทลูกค้า, L:ที่อยู่จัดส่ง, M:Google Map link,
+  // N:ชื่อบริษัทออกใบกำกับ, O:สาขา, P:ที่อยู่(ออกใบกำกับ), Q:Remark
+
+  const setVal = (id, key) => {
+    const el = document.getElementById(id);
+    if (el) el.value = normalized[key] !== undefined ? normalized[key] : '';
   };
 
-  Object.entries(map).forEach(([fieldId, sheetKey]) => {
-    const val = normalized[sheetKey] !== undefined ? normalized[sheetKey] : '';
-    const el = document.getElementById(fieldId);
-    if (el) el.value = val;
-  });
+  setVal('f_sellerName',      'เซลล์ผู้รับผิดชอบ');
+  setVal('f_contactName',     'ชื่อผู้ติดต่อ');
+  setVal('f_clinicName',      'ชื่อคลินิก');
+  setVal('f_phone',           'เบอร์โทร');
+  setVal('f_companyName',     'ชื่อบริษัท');
+  setVal('f_district',        'เขต');
+  setVal('f_taxId',           'เลขที่ผู้เสียภาษี');
+  setVal('f_email',           'Email');
+  setVal('f_shippingAddress', 'ที่อยู่จัดส่ง');
+  setVal('f_mapLink',         'Google Map link');
+  setVal('f_invoiceCompany',  'ชื่อบริษัทออกใบกำกับ');
+  setVal('f_invoiceBranch',   'สาขา');
+  setVal('f_remark',          'Remark');
+
+  // ที่อยู่ — ต้องหาด้วย index เพราะชื่อซ้ำกัน 2 อัน
+  // ใช้ values จาก data object ตาม order ที่ Apps Script ส่งมา
+  // saveCustomer ส่ง: [orderCode, sellerName, contactName, clinicName, phone,
+  //   companyName, address, district, taxId, email, customerType,
+  //   shippingAddress, mapLink, invoiceCompany, invoiceBranch, invoiceAddress, remark]
+  // getLatestCustomerByPhone คืนค่าเป็น object key=header
+  // header column G = "ที่อยู่" (ที่อยู่ปกติ), column P = "ที่อยู่ " หรือ "ที่อยู่ (ออกใบกำกับ)"
+  // หา key ที่มีคำว่า "ที่อยู่" แต่ไม่มี "จัดส่ง" และไม่มี "กำกับ"
+  const addressKey = Object.keys(normalized).find(k =>
+    k.includes('ที่อยู่') && !k.includes('จัดส่ง') && !k.includes('กำกับ') && !k.includes('ออกใบ')
+  );
+  if (addressKey) document.getElementById('f_address').value = normalized[addressKey] || '';
+
+  // ที่อยู่ออกใบกำกับ
+  const invoiceAddressKey = Object.keys(normalized).find(k =>
+    k.includes('ที่อยู่') && (k.includes('กำกับ') || k.includes('ออกใบ'))
+  );
+  if (invoiceAddressKey) document.getElementById('f_invoiceAddress').value = normalized[invoiceAddressKey] || '';
 
   // ประเภทลูกค้า
   const typeRaw = (normalized['ประเภทลูกค้า'] || '').trim();
@@ -943,19 +963,29 @@ function stepQty(productName, delta) {
 }
 
 function handleProductsNext() {
-  const rawDate = document.getElementById('f_orderDate').value; // YYYY-MM-DD
-  const errEl = document.getElementById('productsError');
-
+  const rawDate = document.getElementById('f_orderDate').value;
+  const errEl   = document.getElementById('productsError');
   const hasAnyProduct = Object.values(state.products).some(q => q > 0);
 
-  if (!rawDate || !hasAnyProduct) {
+  if (!rawDate && !hasAnyProduct) {
+    errEl.textContent = 'กรุณาระบุวันที่และเลือกสินค้าอย่างน้อย 1 รายการ';
     errEl.classList.add('show');
     return;
   }
-  errEl.classList.remove('show');
+  if (!rawDate) {
+    errEl.textContent = 'กรุณาระบุวันที่สั่งสินค้า';
+    errEl.classList.add('show');
+    return;
+  }
+  if (!hasAnyProduct) {
+    errEl.textContent = 'กรุณาเลือกสินค้าอย่างน้อย 1 รายการ';
+    errEl.classList.add('show');
+    return;
+  }
 
+  errEl.classList.remove('show');
   state.orderDateRaw = rawDate;
-  state.orderDate = formatDateToThai(rawDate);
+  state.orderDate    = formatDateToThai(rawDate);
   buildSummary();
   goPage('page-summary');
 }
@@ -1004,12 +1034,6 @@ function buildSummary() {
 
   // คืนค่า promo เดิมถ้ามี
   updatePromoDisplay();
-
-  if (state.receiptFile) {
-    showUploadPreview(state.receiptFile.dataUrl);
-  } else {
-    resetUploadBox();
-  }
 }
 
 // เลือก promo radio
