@@ -874,11 +874,13 @@ async function saveCustomerToServer() {
       customerType: state.customerType,
       customerTypeOther: state.customerTypeOther,
     };
-    await fetch(WEB_APP_URL, {
+    const res = await fetch(WEB_APP_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'saveCustomer', payload })
     });
+    const result = await res.json();
     hideLoading();
+    if (result.success && result.orderCode) state.orderCode = result.orderCode;
     buildProductList();
     goPage('page-products');
   } catch (err) {
@@ -1110,6 +1112,7 @@ async function handleSaveOrder() {
 
   try {
     const payload = {
+      orderCode: state.orderCode || null,
       orderDate: state.orderDate,
       phone: state.customer.phone,
       contactName: state.customer.contactName,
