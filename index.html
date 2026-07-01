@@ -376,7 +376,7 @@
       <div class="search-card">
         <div class="field">
           <label>ชื่อลูกค้า</label>
-          <input type="text" id="searchName" placeholder="เช่น หมอปลา คางดำ">
+          <input type="text" id="searchName" placeholder="เช่น บิวตี้ ไซน์">
         </div>
         <div class="field" style="margin-bottom:4px;">
           <label>เบอร์ติดต่อ</label>
@@ -741,56 +741,36 @@ function resetCheckoutForm() {
 }
 
 function fillCheckoutForm(data) {
-  // normalize key: trim ช่องว่างออกก่อนเทียบ
-  const normalized = {};
-  Object.keys(data).forEach(k => { normalized[k.trim()] = data[k]; });
+  // ดึงข้อมูลตาม index ของ array values ตามลำดับที่ saveCustomer บันทึก:
+  // 0=Code Order, 1=sellerName, 2=contactName, 3=clinicName, 4=phone,
+  // 5=companyName, 6=address, 7=district, 8=taxId, 9=email,
+  // 10=customerType, 11=shippingAddress, 12=mapLink,
+  // 13=invoiceCompany, 14=invoiceBranch, 15=invoiceAddress, 16=remark
+  const vals = Object.values(data);
 
-  // mapping ตาม header ของ Customers sheet จริง:
-  // A:Code Order, B:เซลล์ผู้รับผิดชอบ, C:ชื่อผู้ติดต่อ, D:ชื่อคลินิก,
-  // E:เบอร์โทร, F:ชื่อบริษัท, G:ที่อยู่, H:เขต, I:เลขที่ผู้เสียภาษี,
-  // J:Email, K:ประเภทลูกค้า, L:ที่อยู่จัดส่ง, M:Google Map link,
-  // N:ชื่อบริษัทออกใบกำกับ, O:สาขา, P:ที่อยู่(ออกใบกำกับ), Q:Remark
-
-  const setVal = (id, key) => {
+  const setId = (id, val) => {
     const el = document.getElementById(id);
-    if (el) el.value = normalized[key] !== undefined ? normalized[key] : '';
+    if (el) el.value = (val !== undefined && val !== null) ? val : '';
   };
 
-  setVal('f_sellerName',      'เซลล์ผู้รับผิดชอบ');
-  setVal('f_contactName',     'ชื่อผู้ติดต่อ');
-  setVal('f_clinicName',      'ชื่อคลินิก');
-  setVal('f_phone',           'เบอร์โทร');
-  setVal('f_companyName',     'ชื่อบริษัท');
-  setVal('f_district',        'เขต');
-  setVal('f_taxId',           'เลขที่ผู้เสียภาษี');
-  setVal('f_email',           'Email');
-  setVal('f_shippingAddress', 'ที่อยู่จัดส่ง');
-  setVal('f_mapLink',         'Google Map link');
-  setVal('f_invoiceCompany',  'ชื่อบริษัทออกใบกำกับ');
-  setVal('f_invoiceBranch',   'สาขา');
-  setVal('f_remark',          'Remark');
-
-  // ที่อยู่ — ต้องหาด้วย index เพราะชื่อซ้ำกัน 2 อัน
-  // ใช้ values จาก data object ตาม order ที่ Apps Script ส่งมา
-  // saveCustomer ส่ง: [orderCode, sellerName, contactName, clinicName, phone,
-  //   companyName, address, district, taxId, email, customerType,
-  //   shippingAddress, mapLink, invoiceCompany, invoiceBranch, invoiceAddress, remark]
-  // getLatestCustomerByPhone คืนค่าเป็น object key=header
-  // header column G = "ที่อยู่" (ที่อยู่ปกติ), column P = "ที่อยู่ " หรือ "ที่อยู่ (ออกใบกำกับ)"
-  // หา key ที่มีคำว่า "ที่อยู่" แต่ไม่มี "จัดส่ง" และไม่มี "กำกับ"
-  const addressKey = Object.keys(normalized).find(k =>
-    k.includes('ที่อยู่') && !k.includes('จัดส่ง') && !k.includes('กำกับ') && !k.includes('ออกใบ')
-  );
-  if (addressKey) document.getElementById('f_address').value = normalized[addressKey] || '';
-
-  // ที่อยู่ออกใบกำกับ
-  const invoiceAddressKey = Object.keys(normalized).find(k =>
-    k.includes('ที่อยู่') && (k.includes('กำกับ') || k.includes('ออกใบ'))
-  );
-  if (invoiceAddressKey) document.getElementById('f_invoiceAddress').value = normalized[invoiceAddressKey] || '';
+  setId('f_sellerName',      vals[1]);
+  setId('f_contactName',     vals[2]);
+  setId('f_clinicName',      vals[3]);
+  setId('f_phone',           vals[4]);
+  setId('f_companyName',     vals[5]);
+  setId('f_address',         vals[6]);
+  setId('f_district',        vals[7]);
+  setId('f_taxId',           vals[8]);
+  setId('f_email',           vals[9]);
+  setId('f_shippingAddress', vals[11]);
+  setId('f_mapLink',         vals[12]);
+  setId('f_invoiceCompany',  vals[13]);
+  setId('f_invoiceBranch',   vals[14]);
+  setId('f_invoiceAddress',  vals[15]);
+  setId('f_remark',          vals[16]);
 
   // ประเภทลูกค้า
-  const typeRaw = (normalized['ประเภทลูกค้า'] || '').trim();
+  const typeRaw = ((vals[10] || '')).toString().trim();
   if (typeRaw.startsWith('อื่นๆ')) {
     selectPillByValue('other');
     document.getElementById('f_customerTypeOther').value = typeRaw.replace(/^อื่นๆ:?\s*/, '');
