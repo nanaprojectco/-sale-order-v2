@@ -338,7 +338,74 @@
   @media (min-width: 540px) {
     .app { margin-top: 24px; margin-bottom: 24px; border-radius: 20px; box-shadow: var(--shadow); min-height: calc(100vh - 48px); }
   }
+
+  /* ===================== PHASE 1 — HISTO LAB brand ===================== */
+  :root { --brand: #FB0618; --brand-dark: #4d0a12; }
+  .app { padding-bottom: 0; }
+
+  .rp { background: var(--brand); min-height: 100vh; padding: 0; display: flex; flex-direction: column; }
+  .rp-inner { flex: 1; padding: 20px 22px 28px; }
+  .rp .brand-logo { width: 96px; height: 96px; display: block; margin: 22px auto 6px; }
+  .rp h2 { color:#fff; text-align:center; font-size:22px; font-weight:700; margin: 14px 0 4px; }
+  .rp .rp-sub { color: rgba(255,255,255,.9); text-align:center; font-size:12.5px; margin: 0 0 22px; }
+
+  .home-btns { margin-top: 30px; display:flex; flex-direction:column; }
+  .home-btn { width:100%; padding:16px; border-radius:12px; font-size:16px; font-weight:600;
+    border:none; margin-bottom:14px; cursor:pointer; font-family:inherit; }
+  .home-btn:active { transform: scale(.985); }
+  .home-btn.white { background:#fff; color:#1c1c1c; }
+  .home-btn.dark  { background:var(--brand-dark); color:#fff; margin-top:2px; }
+
+  .rp-input { width:100%; padding:15px 16px; border-radius:12px; border:none; font-size:16px;
+    text-align:center; margin-bottom:14px; font-family:inherit; background:#fff; color:#1c1c1c; }
+  .rp-input:focus { outline:2px solid rgba(255,255,255,.7); }
+  .rp-login-btn { display:block; margin:6px auto 0; background:#fff; color:#1c1c1c; border:none;
+    border-radius:12px; padding:11px 30px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .rp-err { color:#fff; background:rgba(0,0,0,.18); border-radius:9px; padding:9px 12px;
+    font-size:13px; text-align:center; margin-top:6px; display:none; }
+  .rp-err.show { display:block; }
+
+  .rp-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 18px 0; }
+  .rp-topbar .brand-logo { width:64px; height:64px; margin:0; }
+  .rp-back, .rp-home { background:#fff; border:none; border-radius:10px; padding:8px 14px;
+    font-size:14px; font-weight:600; cursor:pointer; color:var(--brand); font-family:inherit; }
+  .rp-spacer { width:60px; }
+
+  .rp-footer { background:#fff; padding:9px 6px; text-align:center; }
+  .rp-footer img { max-width:290px; width:82%; height:auto; display:inline-block; }
+
+  .rcard { background:#fff; border-radius:16px; padding:16px; margin:14px 0; box-shadow:0 6px 18px rgba(0,0,0,.12); }
+  .rcard h3 { margin:0 0 12px; font-size:15px; font-weight:700; color:var(--ink); }
+  .field-red label { color:#fff; }
+  .month-select { width:100%; padding:12px 14px; border-radius:10px; border:none; font-size:15px;
+    font-family:inherit; background:#fff; margin-bottom:4px; }
+
+  .seller-btn { width:100%; text-align:left; background:#fff; border:none; border-radius:12px;
+    padding:14px 16px; margin-bottom:10px; cursor:pointer; font-family:inherit;
+    display:flex; justify-content:space-between; align-items:center; }
+  .seller-btn:active { transform: scale(.99); }
+  .seller-btn .s-name { font-size:15px; font-weight:600; color:#1c1c1c; }
+  .seller-btn .s-total { font-size:13px; color:var(--brand); font-weight:700; }
+  .seller-btn .s-chev { color:#c0c0c0; font-size:18px; }
+  .team-note { color:rgba(255,255,255,.92); text-align:center; font-size:13px; margin:18px 0 6px; }
+
+  .stat-row { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #eee; font-size:14px; }
+  .stat-row:last-child { border-bottom:none; }
+  .stat-row .k { color:var(--ink-soft); }
+  .stat-row .v { font-weight:700; color:var(--ink); }
+  .top-prod { font-size:13.5px; color:var(--ink); padding:6px 0; border-bottom:1px dashed #eee; display:flex; justify-content:space-between; }
+  .top-prod:last-child { border-bottom:none; }
+  .chart-box { position:relative; height:260px; }
+  .empty-note { text-align:center; color:var(--ink-soft); font-size:13.5px; padding:30px 10px; }
+
+  select#f_sellerName {
+    width:100%; padding:13px 14px; border:1px solid var(--line); border-radius:10px;
+    font-size:15px; background:var(--card); color:var(--ink); font-family:inherit;
+  }
+  select#f_sellerName:focus { outline:2px solid var(--teal); border-color:var(--teal); }
+
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -349,10 +416,112 @@
 <div class="app" id="app">
 
   <!-- ============================================================ -->
+  <!-- HOME (brand landing) -->
+  <!-- ============================================================ -->
+  <div class="page rp active" id="page-home">
+    <div class="rp-inner">
+      <img class="brand-logo js-logo" alt="HISTO LAB">
+      <div class="home-btns">
+        <button class="home-btn white" onclick="showSoon('Existing Clinic Search')">Existing Clinic Search</button>
+        <button class="home-btn white" onclick="showSoon('Update Sale Visit')">Update Sale Visit</button>
+        <button class="home-btn white" onclick="openOrderSearch()">Order</button>
+        <button class="home-btn dark" onclick="showSoon('Sale Visit Summary')">Sale Visit Summary</button>
+        <button class="home-btn dark" onclick="openPmLogin()">Project Management Team</button>
+      </div>
+    </div>
+    <div class="rp-footer"><img class="js-copy" alt="Science &amp; Beauty (Thailand) Co., Ltd."></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PM LOGIN (staff gate) -->
+  <!-- ============================================================ -->
+  <div class="page rp" id="page-pm-login">
+    <div class="rp-topbar">
+      <button class="rp-back" onclick="goHome()">&lt; Home</button>
+      <span class="rp-spacer"></span>
+    </div>
+    <div class="rp-inner">
+      <img class="brand-logo js-logo" alt="HISTO LAB">
+      <h2>Project Management Site</h2>
+      <p class="rp-sub">Only Project Management has access to this site</p>
+      <input class="rp-input" id="pm_user" placeholder="User" autocomplete="off">
+      <input class="rp-input" id="pm_pass" type="password" placeholder="Password" autocomplete="off">
+      <button class="rp-login-btn" onclick="pmLogin()">Login</button>
+      <div class="rp-err" id="pmErr">บัญชีหรือรหัสผ่านไม่ถูกต้อง (เฉพาะ Staff)</div>
+    </div>
+    <div class="rp-footer"><img class="js-copy" alt="Science &amp; Beauty (Thailand) Co., Ltd."></div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PM — ALL SALE TEAM -->
+  <!-- ============================================================ -->
+  <div class="page rp" id="page-pm-team">
+    <div class="rp-topbar">
+      <span class="rp-spacer"></span>
+      <img class="brand-logo js-logo" alt="HISTO LAB">
+      <button class="rp-home" onclick="goHome()">Home</button>
+    </div>
+    <div class="rp-inner">
+      <h2>All Sale Team</h2>
+      <select class="month-select" id="pm_month" onchange="onMonthChange()"></select>
+      <div class="rcard">
+        <h3>สัดส่วนยอดขายของทีม (เดือนที่เลือก)</h3>
+        <div class="chart-box"><canvas id="teamDonut"></canvas></div>
+        <div class="empty-note" id="teamEmpty" style="display:none;">ยังไม่มีข้อมูลยอดขายในเดือนนี้</div>
+      </div>
+      <div class="team-note">แตะชื่อเซลล์เพื่อดูรายละเอียดรายคน</div>
+      <div id="teamList"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PM — SELLER DETAIL -->
+  <!-- ============================================================ -->
+  <div class="page rp" id="page-pm-seller">
+    <div class="rp-topbar">
+      <button class="rp-back" onclick="goPage('page-pm-team')">&lt; ทีม</button>
+      <button class="rp-home" onclick="goHome()">Home</button>
+    </div>
+    <div class="rp-inner">
+      <h2 id="sellerTitle">ชื่อเซลล์</h2>
+      <div class="rcard">
+        <h3>Visit vs Order รายเดือน</h3>
+        <div class="chart-box"><canvas id="sellerBar"></canvas></div>
+        <div class="empty-note" id="sellerBarEmpty" style="display:none;">ยังไม่มีข้อมูลของเซลล์คนนี้</div>
+      </div>
+      <div class="rcard" id="sellerStats"></div>
+      <div class="rcard">
+        <h3>สินค้าขายดี (Top 5)</h3>
+        <div id="sellerTop"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- COMING SOON placeholder -->
+  <!-- ============================================================ -->
+  <div class="page rp" id="page-soon">
+    <div class="rp-topbar">
+      <button class="rp-back" onclick="goHome()">&lt; Home</button>
+      <span class="rp-spacer"></span>
+    </div>
+    <div class="rp-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+      <img class="brand-logo js-logo" alt="HISTO LAB">
+      <h2 id="soonTitle">เร็ว ๆ นี้</h2>
+      <p class="rp-sub">ฟีเจอร์นี้กำลังพัฒนา จะเปิดใช้งานในเฟสถัดไป</p>
+    </div>
+    <div class="rp-footer"><img class="js-copy" alt="Science &amp; Beauty (Thailand) Co., Ltd."></div>
+  </div>
+
+
+  <!-- ============================================================ -->
   <!-- PAGE 1: ค้นหาลูกค้า -->
   <!-- ============================================================ -->
-  <div class="page active" id="page-search">
+  <div class="page" id="page-search">
     <div class="topbar">
+      <button class="back-btn" onclick="goHome()" aria-label="ย้อนกลับ">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
       <div>
         <span class="eyebrow">Science &amp; Beauty</span>
         <h1>Sale Order</h1>
@@ -397,7 +566,7 @@
 
     <div class="field">
       <label>เซลล์ผู้รับผิดชอบ <span class="required-mark">*</span></label>
-      <input type="text" id="f_sellerName" placeholder="ชื่อเซลล์">
+      <select id="f_sellerName"><option value="">— เลือกชื่อเซลล์ —</option></select>
     </div>
     <div class="field">
       <label>ชื่อคลินิก <span class="required-mark">*</span></label>
@@ -739,7 +908,7 @@ function fillCheckoutForm(data) {
     if (el) el.value = (val !== undefined && val !== null) ? val : '';
   };
 
-  setId('f_sellerName',      vals[1]);
+  setSellerName(vals[1]);
   setId('f_contactName',     vals[2]);
   setId('f_clinicName',      vals[3]);
   setId('f_phone',           vals[4]);
@@ -1090,8 +1259,235 @@ function resetAndGoHome() {
   document.getElementById('searchPhone').value = '';
   document.getElementById('searchError').classList.remove('show');
   resetCheckoutForm();
+  goPage('page-home');
+}
+
+/* =====================================================================
+   PHASE 1 — Brand assets, navigation, seller dropdown, Project Management
+   ===================================================================== */
+const LOGO_SRC = 'data:image/png;base64,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';
+const COPY_SRC = 'data:image/png;base64,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';
+
+let SELLERS = [];          // status Sale names (for Order dropdown)
+let PM_DATA = null;        // full dashboard dataset from staffLogin
+let currentMonthKey = '';
+let teamChart = null, sellerChart = null;
+
+function initBrand() {
+  document.querySelectorAll('.js-logo').forEach(i => i.src = LOGO_SRC);
+  document.querySelectorAll('.js-copy').forEach(i => i.src = COPY_SRC);
+  loadSellers();
+}
+
+function goHome() { goPage('page-home'); }
+
+function showSoon(title) {
+  document.getElementById('soonTitle').textContent = title;
+  goPage('page-soon');
+}
+
+/* ---- Seller dropdown (Order page) ---- */
+async function loadSellers() {
+  try {
+    const res = await fetch(`${WEB_APP_URL}?action=getSellerList`);
+    const r = await res.json();
+    if (r && r.success && Array.isArray(r.sellers)) {
+      SELLERS = r.sellers;
+      fillSellerSelect();
+    }
+  } catch (e) { /* เงียบไว้ ไม่ให้บล็อกหน้า Order */ }
+}
+function fillSellerSelect() {
+  const sel = document.getElementById('f_sellerName');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— เลือกชื่อเซลล์ —</option>';
+  SELLERS.forEach(n => {
+    const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o);
+  });
+  if (cur) setSellerName(cur);
+}
+function setSellerName(name) {
+  const sel = document.getElementById('f_sellerName');
+  if (!sel) return;
+  name = (name === undefined || name === null) ? '' : String(name);
+  if (name && ![...sel.options].some(o => o.value === name)) {
+    const o = document.createElement('option'); o.value = name; o.textContent = name; sel.appendChild(o);
+  }
+  sel.value = name;
+}
+function openOrderSearch() {
+  if (!SELLERS.length) loadSellers();
   goPage('page-search');
 }
+
+/* ---- Project Management: login (staff only) ---- */
+function openPmLogin() {
+  document.getElementById('pm_user').value = '';
+  document.getElementById('pm_pass').value = '';
+  document.getElementById('pmErr').classList.remove('show');
+  goPage('page-pm-login');
+}
+
+async function pmLogin() {
+  const user = document.getElementById('pm_user').value.trim();
+  const pass = document.getElementById('pm_pass').value;
+  const err  = document.getElementById('pmErr');
+  if (!user || !pass) { err.textContent = 'กรุณากรอก User และ Password'; err.classList.add('show'); return; }
+  err.classList.remove('show');
+  showLoading('กำลังตรวจสอบ...');
+  try {
+    const res = await fetch(WEB_APP_URL, { method: 'POST',
+      body: JSON.stringify({ action: 'staffLogin', payload: { user, pass } }) });
+    const r = await res.json();
+    hideLoading();
+    if (!r.success) { err.textContent = 'เกิดข้อผิดพลาด: ' + (r.error || ''); err.classList.add('show'); return; }
+    if (!r.valid) { err.textContent = 'บัญชีหรือรหัสผ่านไม่ถูกต้อง (เฉพาะ Staff)'; err.classList.add('show'); return; }
+    PM_DATA = r.data || { months: [], team: {}, sellers: {}, saleList: [] };
+    enterPmTeam();
+  } catch (e) {
+    hideLoading();
+    err.textContent = 'เชื่อมต่อไม่สำเร็จ: ' + e.message; err.classList.add('show');
+  }
+}
+
+/* ---- All Sale Team ---- */
+function enterPmTeam() {
+  const monthSel = document.getElementById('pm_month');
+  monthSel.innerHTML = '';
+  const months = PM_DATA.months || [];
+  months.forEach(m => {
+    const o = document.createElement('option'); o.value = m.key; o.textContent = m.label; monthSel.appendChild(o);
+  });
+  if (months.length) {
+    currentMonthKey = months[months.length - 1].key;  // ล่าสุด
+    monthSel.value = currentMonthKey;
+  } else {
+    currentMonthKey = '';
+  }
+  goPage('page-pm-team');
+  renderTeam();
+  renderTeamList();
+}
+
+function onMonthChange() {
+  currentMonthKey = document.getElementById('pm_month').value;
+  renderTeam();
+  renderTeamList();
+}
+
+function renderTeam() {
+  const empty = document.getElementById('teamEmpty');
+  const canvas = document.getElementById('teamDonut');
+  const t = (PM_DATA.team || {})[currentMonthKey];
+  const rows = t && t.sellers ? t.sellers.filter(s => s.total > 0) : [];
+  if (teamChart) { teamChart.destroy(); teamChart = null; }
+  if (!rows.length) { empty.style.display = 'block'; canvas.style.display = 'none'; return; }
+  empty.style.display = 'none'; canvas.style.display = 'block';
+  const palette = ['#FB0618','#3b82f6','#f59e0b','#10b981','#8b5cf6','#ec4899','#14b8a6','#64748b','#f97316','#0ea5e9'];
+  teamChart = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: rows.map(r => r.seller),
+      datasets: [{ data: rows.map(r => r.total), backgroundColor: rows.map((_,i)=>palette[i%palette.length]), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 12 } } },
+        tooltip: { callbacks: { label: (c) => {
+          const val = c.parsed; const total = c.dataset.data.reduce((a,b)=>a+b,0);
+          const pct = total ? (val/total*100).toFixed(1) : 0;
+          return `${c.label}: ${val.toLocaleString()} บาท (${pct}%)`;
+        } } }
+      }
+    }
+  });
+}
+
+function renderTeamList() {
+  const box = document.getElementById('teamList');
+  box.innerHTML = '';
+  const list = PM_DATA.saleList || [];
+  const t = (PM_DATA.team || {})[currentMonthKey];
+  const totalByName = {};
+  if (t && t.sellers) t.sellers.forEach(s => totalByName[s.seller] = s.total);
+  if (!list.length) { box.innerHTML = '<div class="empty-note" style="color:#fff;">ยังไม่มีเซลล์ (สถานะ Sale) ในชีต User</div>'; return; }
+  list.forEach(name => {
+    const total = totalByName[name] || 0;
+    const b = document.createElement('button');
+    b.className = 'seller-btn';
+    b.onclick = () => openSeller(name);
+    b.innerHTML = `<span class="s-name">${escapeHtml(name)}</span>`
+      + `<span style="display:flex;align-items:center;gap:10px;">`
+      + `<span class="s-total">${total ? total.toLocaleString()+' บาท' : '—'}</span>`
+      + `<span class="s-chev">›</span></span>`;
+    box.appendChild(b);
+  });
+}
+
+/* ---- Seller detail ---- */
+function openSeller(name) {
+  document.getElementById('sellerTitle').textContent = name;
+  goPage('page-pm-seller');
+  renderSellerBar(name);
+  renderSellerStats(name);
+}
+
+function renderSellerBar(name) {
+  const canvas = document.getElementById('sellerBar');
+  const empty = document.getElementById('sellerBarEmpty');
+  const sd = (PM_DATA.sellers || {})[name];
+  const months = PM_DATA.months || [];
+  if (sellerChart) { sellerChart.destroy(); sellerChart = null; }
+  if (!sd || !months.length) { empty.style.display = 'block'; canvas.style.display = 'none'; return; }
+  empty.style.display = 'none'; canvas.style.display = 'block';
+  const labels = months.map(m => m.label);
+  const orderData = months.map(m => (sd.monthly[m.key] ? sd.monthly[m.key].orderCount : 0));
+  const visitData = months.map(m => (sd.monthly[m.key] ? sd.monthly[m.key].visitCount : 0));
+  sellerChart = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'จาก Visit', data: visitData, backgroundColor: '#3b82f6' },
+      { label: 'จาก Order', data: orderData, backgroundColor: '#FB0618' }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+      plugins: { legend: { position: 'top', labels: { font: { size: 12 } } } }
+    }
+  });
+}
+
+function renderSellerStats(name) {
+  const sd = (PM_DATA.sellers || {})[name] || { totalAll:0, orderCountAll:0, topProducts:[], monthly:{} };
+  const t = (PM_DATA.team || {})[currentMonthKey];
+  let rank = '—', pct = '—', monthSales = 0;
+  if (t && t.sellers) {
+    const idx = t.sellers.findIndex(s => s.seller === name);
+    if (idx >= 0) { rank = '#' + (idx + 1) + ' จาก ' + t.sellers.length; pct = t.sellers[idx].percent + '%'; monthSales = t.sellers[idx].total; }
+  }
+  const monthLabel = (PM_DATA.months.find(m => m.key === currentMonthKey) || {}).label || '-';
+  const stats = document.getElementById('sellerStats');
+  stats.innerHTML = '<h3>สรุปผลงาน</h3>'
+    + row('อันดับเดือน ' + monthLabel, rank)
+    + row('ส่วนแบ่งเดือนนี้', pct)
+    + row('ยอดขายเดือนนี้', monthSales.toLocaleString() + ' บาท')
+    + row('ยอดขายรวมทั้งหมด', sd.totalAll.toLocaleString() + ' บาท')
+    + row('จำนวนออเดอร์รวม', sd.orderCountAll + ' ออเดอร์');
+  const top = document.getElementById('sellerTop');
+  if (sd.topProducts && sd.topProducts.length) {
+    top.innerHTML = sd.topProducts.map(p =>
+      `<div class="top-prod"><span>${escapeHtml(p.name)}</span><span>x${p.qty}</span></div>`).join('');
+  } else {
+    top.innerHTML = '<div class="empty-note">ยังไม่มีข้อมูลสินค้า</div>';
+  }
+}
+function row(k, v) { return `<div class="stat-row"><span class="k">${k}</span><span class="v">${v}</span></div>`; }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+document.addEventListener('DOMContentLoaded', initBrand);
+
 </script>
 
 </body>
