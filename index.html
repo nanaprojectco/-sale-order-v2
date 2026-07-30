@@ -343,7 +343,8 @@
   :root { --brand: #FB0618; --brand-dark: #4d0a12; }
   .app { padding-bottom: 0; }
 
-  .rp { background: var(--brand); min-height: 100vh; padding: 0; display: flex; flex-direction: column; }
+  .rp { background: var(--brand); min-height: 100vh; padding: 0; }
+  .page.rp.active { display: flex; flex-direction: column; }
   .rp-inner { flex: 1; padding: 20px 22px 28px; }
   .rp .brand-logo { width: 96px; height: 96px; display: block; margin: 22px auto 6px; }
   .rp h2 { color:#fff; text-align:center; font-size:22px; font-weight:700; margin: 14px 0 4px; }
@@ -1222,6 +1223,7 @@ async function handleSaveOrder() {
 
     const res = await fetch(WEB_APP_URL, {
       method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'saveCustomerAndOrder', payload })
     });
     const result = await res.json();
@@ -1338,6 +1340,7 @@ async function pmLogin() {
   showLoading('กำลังตรวจสอบ...');
   try {
     const res = await fetch(WEB_APP_URL, { method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'staffLogin', payload: { user, pass } }) });
     const r = await res.json();
     hideLoading();
