@@ -645,20 +645,10 @@
     </div>
 
     <div style="padding: 8px 0 18px;">
-      <div class="search-card">
-        <div class="field">
-          <label>ชื่อลูกค้า</label>
-          <input type="text" id="searchName" placeholder="เช่น บิวตี้ ไซน์">
-        </div>
-        <div class="field" style="margin-bottom:4px;">
-          <label>เบอร์ติดต่อ</label>
-          <input type="tel" id="searchPhone" placeholder="เช่น 099 999 9999">
-        </div>
-        <div class="error-text" id="searchError">กรุณากรอกชื่อหรือเบอร์โทรอย่างน้อย 1 ช่อง</div>
-        <div class="btn-row" style="margin-top:18px;">
-          <button class="btn btn-primary" onclick="handleSearch()">ค้นหา</button>
-        </div>
-      </div>
+      <input class="visit-search" id="orderClinicSearch" placeholder="ค้นหาชื่อคลินิก..." oninput="renderOrderClinics()" autocomplete="off">
+      <div class="list-head">รายชื่อคลินิกทั้งหมด <span>เลือกคลินิกเดิม หรือกดเพิ่มคลินิกใหม่ด้านล่าง</span></div>
+      <div id="orderClinicList"></div>
+      <button class="new-clinic-bar" onclick="openNewCustomer()">＋ เพิ่มคลินิกใหม่</button>
     </div>
   </div>
 
@@ -1433,9 +1423,72 @@ function setSellerName(name) {
   }
   sel.value = name;
 }
-function openOrderSearch() {
+let ORDER_CLINICS = [], ORDER_FILTERED = [];
+
+async function openOrderSearch() {
   if (!SELLERS.length) loadSellers();
   goPage('page-search');
+  document.getElementById('orderClinicSearch').value = '';
+  document.getElementById('orderClinicList').innerHTML = '<div class="empty-note">กำลังโหลด...</div>';
+  await loadOrderClinics();
+  renderOrderClinics();
+}
+
+async function loadOrderClinics() {
+  try {
+    const r = await fetch(`${WEB_APP_URL}?action=getOrderClinicList`).then(x => x.json());
+    ORDER_CLINICS = (r && r.success) ? (r.clinics || []) : [];
+  } catch (e) { ORDER_CLINICS = []; }
+}
+
+function renderOrderClinics() {
+  const box = document.getElementById('orderClinicList');
+  const q = normStr(document.getElementById('orderClinicSearch').value);
+  ORDER_FILTERED = ORDER_CLINICS.filter(c => !q || normStr(c.clinic).indexOf(q) >= 0);
+  if (!ORDER_FILTERED.length) {
+    box.innerHTML = '<div class="empty-note">' + (q ? 'ไม่พบคลินิก — กด “＋ เพิ่มคลินิกใหม่” ด้านล่าง' : 'ยังไม่มีคลินิกในระบบ') + '</div>';
+    return;
+  }
+  box.innerHTML = ORDER_FILTERED.map((c, i) =>
+    `<div class="clinic-item" onclick="selectOrderClinic(${i})">`
+    + `<div class="c-name">${escapeHtml(c.clinic)}</div>`
+    + `<div class="c-seller">${escapeHtml(c.contact || '')}${c.phone ? ' · ' + escapeHtml(c.phone) : ''}</div></div>`).join('');
+}
+
+async function selectOrderClinic(i) {
+  const c = ORDER_FILTERED[i];
+  if (!c) return;
+  showLoading('กำลังโหลดข้อมูล...');
+  try {
+    const r = await fetch(`${WEB_APP_URL}?action=searchCustomerByClinic&clinic=${encodeURIComponent(c.clinic)}`).then(x => x.json());
+    hideLoading();
+    resetCheckoutForm();
+    if (r.found) {
+      fillCheckoutForm(r.data);
+      document.getElementById('foundBanner').style.display = 'flex';
+      document.getElementById('checkoutEyebrow').textContent = 'พบลูกค้าเดิม';
+      document.getElementById('checkoutTitle').textContent = 'ตรวจสอบ/แก้ไขข้อมูล';
+    } else {
+      document.getElementById('foundBanner').style.display = 'none';
+      document.getElementById('checkoutEyebrow').textContent = 'ลูกค้าใหม่';
+      document.getElementById('checkoutTitle').textContent = 'กรอกข้อมูลลูกค้า';
+      document.getElementById('f_clinicName').value = c.clinic;
+    }
+    goPage('page-checkout');
+  } catch (e) {
+    hideLoading();
+    alert('โหลดข้อมูลไม่สำเร็จ: ' + e.message);
+  }
+}
+
+function openNewCustomer() {
+  resetCheckoutForm();
+  document.getElementById('foundBanner').style.display = 'none';
+  document.getElementById('checkoutEyebrow').textContent = 'ลูกค้าใหม่';
+  document.getElementById('checkoutTitle').textContent = 'กรอกข้อมูลลูกค้า';
+  const typed = document.getElementById('orderClinicSearch').value.trim();
+  if (typed) document.getElementById('f_clinicName').value = typed;
+  goPage('page-checkout');
 }
 
 /* ---- Project Management: login (staff only) ---- */
