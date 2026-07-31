@@ -1452,7 +1452,7 @@ function renderOrderClinics() {
   box.innerHTML = ORDER_FILTERED.map((c, i) =>
     `<div class="clinic-item" onclick="selectOrderClinic(${i})">`
     + `<div class="c-name">${escapeHtml(c.clinic)}</div>`
-    + `<div class="c-seller">${escapeHtml(c.contact || '')}${c.phone ? ' · ' + escapeHtml(c.phone) : ''}</div></div>`).join('');
+    + `<div class="c-seller">${escapeHtml(c.contact || '')}</div></div>`).join('');
 }
 
 async function selectOrderClinic(i) {
