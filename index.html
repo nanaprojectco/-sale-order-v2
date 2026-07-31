@@ -405,6 +405,31 @@
   }
   select#f_sellerName:focus { outline:2px solid var(--teal); border-color:var(--teal); }
 
+
+  /* ===================== PHASE 2 — Update Sale Visit ===================== */
+  .visit-search { width:100%; margin:8px 0 4px; padding:14px 16px; border-radius:12px; border:none;
+    background:#efefef; font-size:15px; font-family:inherit; }
+  .list-head { margin:10px 0 4px; font-weight:700; color:var(--ink); font-size:15px; }
+  .list-head span { display:block; font-weight:400; color:var(--brand); font-size:12px; margin-top:1px; }
+  .clinic-item { margin:8px 0; background:#fff; border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; cursor:pointer; }
+  .clinic-item:active { background:#f3f4f6; }
+  .clinic-item .c-name { font-size:15px; font-weight:600; color:var(--ink); }
+  .clinic-item .c-seller { font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .new-clinic-bar { display:block; width:100%; margin:14px 0 26px; background:var(--brand); color:#fff;
+    border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .form-sub { margin:0 0 12px; color:var(--ink-soft); font-size:13px; }
+  .hint-red { color:var(--brand); font-size:12px; margin:2px 0 6px; }
+  .hint-red.center { text-align:center; margin:18px 0; }
+  textarea.dark-area { width:100%; min-height:82px; background:#4a4a4a; color:#fff; border:none;
+    border-radius:10px; padding:12px; font-family:inherit; font-size:14px; resize:vertical; box-sizing:border-box; }
+  textarea.dark-area::placeholder { color:#cfcfcf; }
+  #v_sale, #v_clinic, #v_date { width:100%; padding:13px 14px; border:1px solid var(--line);
+    border-radius:10px; font-size:15px; font-family:inherit; background:var(--card); color:var(--ink); box-sizing:border-box; }
+  #v_clinic[readonly] { background:#eef2f7; color:#333; }
+  .save-green { display:block; margin:8px 0 32px auto; background:#22c55e; color:#fff; border:none;
+    border-radius:10px; padding:11px 32px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -424,7 +449,7 @@
       <img class="brand-logo js-logo" alt="HISTO LAB">
       <div class="home-btns">
         <button class="home-btn white" onclick="showSoon('Existing Clinic Search')">Existing Clinic Search</button>
-        <button class="home-btn white" onclick="showSoon('Update Sale Visit')">Update Sale Visit</button>
+        <button class="home-btn white" onclick="openVisitSearch()">Update Sale Visit</button>
         <button class="home-btn white" onclick="openOrderSearch()">Order</button>
         <button class="home-btn dark" onclick="showSoon('Sale Visit Summary')">Sale Visit Summary</button>
         <button class="home-btn dark" onclick="openPmLogin()">Project Management Team</button>
@@ -518,6 +543,67 @@
   <!-- ============================================================ -->
   <!-- PAGE 1: ค้นหาลูกค้า -->
   <!-- ============================================================ -->
+
+  <!-- ============================================================ -->
+  <!-- UPDATE SALE VISIT — search / pick clinic -->
+  <!-- ============================================================ -->
+  <div class="page" id="page-visit-search">
+    <div class="topbar">
+      <button class="back-btn" onclick="goHome()" aria-label="ย้อนกลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div>
+        <span class="eyebrow">Science &amp; Beauty</span>
+        <h1>Update Sale Visit</h1>
+      </div>
+    </div>
+    <input class="visit-search" id="visitSearch" placeholder="พิมพ์ชื่อคลินิก..." oninput="renderVisitClinics()">
+    <div class="list-head">รายชื่อคลินิกทั้งหมด <span>เรียงตามตัวอักษร ก-ฮ &gt; A-Z</span></div>
+    <div id="visitClinicList"></div>
+    <button class="new-clinic-bar" onclick="openVisitFormNew()">Click in case คลินิกใหม่ &nbsp;&nbsp;New &gt;</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- UPDATE SALE VISIT — form -->
+  <!-- ============================================================ -->
+  <div class="page" id="page-visit-form">
+    <div class="topbar">
+      <button class="back-btn" onclick="goPage('page-visit-search')" aria-label="ย้อนกลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div>
+        <span class="eyebrow" id="visitFormMode">กรณีคลินิกเดิม</span>
+        <h1>Update Sale Visit</h1>
+      </div>
+    </div>
+    <p class="form-sub">แบบบันทึกการเข้าพบลูกค้า</p>
+
+    <div class="field">
+      <label>วัน/เดือน/ปี</label>
+      <input type="date" id="v_date">
+    </div>
+    <div class="field">
+      <label>เซลล์ <span class="required-mark">*</span></label>
+      <div class="hint-red">*ชื่อเซลล์ต้องตรงกับที่ลงชื่อในระบบเท่านั้น</div>
+      <select id="v_sale"><option value="">— เลือกชื่อเซลล์ —</option></select>
+    </div>
+    <div class="field">
+      <label>คลินิก <span class="required-mark">*</span></label>
+      <div class="hint-red" id="v_clinicHint">*ระบุชื่อคลินิกใหม่เท่านั้น</div>
+      <input type="text" id="v_clinic" placeholder="ระบุคลินิก">
+    </div>
+    <div class="field">
+      <label>Sale Activation</label>
+      <textarea id="v_act" class="dark-area" placeholder="อัปเดตการทำงานของคุณ..."></textarea>
+    </div>
+    <div class="field">
+      <label>Customer Sentiment</label>
+      <textarea id="v_sent" class="dark-area" placeholder="ระบุผลการตอบรับจากลูกค้า..."></textarea>
+    </div>
+    <div class="field">
+      <label>Note</label>
+      <textarea id="v_note" class="dark-area" placeholder="อื่นๆ...."></textarea>
+    </div>
+    <div class="hint-red center">โปรดเช็คความถูกต้องอีกครั้งก่อนบันทึกข้อมูล</div>
+    <button class="save-green" onclick="saveVisit()">Save</button>
+  </div>
+
   <div class="page" id="page-search">
     <div class="topbar">
       <button class="back-btn" onclick="goHome()" aria-label="ย้อนกลับ">
@@ -1498,6 +1584,126 @@ function row(k, v) { return `<div class="stat-row"><span class="k">${k}</span><s
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 document.addEventListener('DOMContentLoaded', initBrand);
+
+/* =====================================================================
+   PHASE 2 — Update Sale Visit
+   ===================================================================== */
+let VISIT_CLINICS = [];
+let VISIT_SALES = [];
+let VISIT_FILTERED = [];
+
+function todayISO() {
+  const d = new Date(); const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function normStr(s) { return String(s || '').toLowerCase().replace(/\s+/g, ''); }
+
+async function openVisitSearch() {
+  goPage('page-visit-search');
+  document.getElementById('visitSearch').value = '';
+  document.getElementById('visitClinicList').innerHTML = '<div class="empty-note">กำลังโหลดรายชื่อคลินิก...</div>';
+  await loadVisitData();
+  renderVisitClinics();
+}
+
+async function loadVisitData() {
+  try {
+    const [c, s] = await Promise.all([
+      fetch(`${WEB_APP_URL}?action=getClinicList`).then(r => r.json()),
+      fetch(`${WEB_APP_URL}?action=getStaffAndSaleList`).then(r => r.json())
+    ]);
+    if (c && c.success) VISIT_CLINICS = c.clinics || [];
+    if (s && s.success) VISIT_SALES = s.names || [];
+    fillSaleSelect();
+  } catch (e) { /* เงียบ ไม่บล็อกหน้า */ }
+}
+
+function fillSaleSelect() {
+  const sel = document.getElementById('v_sale');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— เลือกชื่อเซลล์ —</option>';
+  VISIT_SALES.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
+  if (cur) sel.value = cur;
+}
+
+function renderVisitClinics() {
+  const box = document.getElementById('visitClinicList');
+  const q = normStr(document.getElementById('visitSearch').value);
+  VISIT_FILTERED = VISIT_CLINICS.filter(c => !q || normStr(c.clinic).indexOf(q) >= 0);
+  if (!VISIT_FILTERED.length) {
+    box.innerHTML = '<div class="empty-note">' + (q ? 'ไม่พบคลินิกที่ตรงกับคำค้น' : 'ยังไม่มีคลินิกในระบบ') + '</div>';
+    return;
+  }
+  box.innerHTML = VISIT_FILTERED.map((c, i) =>
+    `<div class="clinic-item" onclick="openVisitFormExistingIdx(${i})">`
+    + `<div class="c-name">${escapeHtml(c.clinic)}</div>`
+    + `<div class="c-seller">เซลล์ผู้รับผิดชอบ: ${escapeHtml(c.seller || '-')}</div></div>`).join('');
+}
+
+function openVisitFormExistingIdx(i) {
+  const c = VISIT_FILTERED[i];
+  if (c) openVisitFormExisting(c.clinic);
+}
+
+function prepVisitForm() {
+  document.getElementById('v_date').value = todayISO();
+  fillSaleSelect();
+  document.getElementById('v_sale').value = '';
+  document.getElementById('v_act').value = '';
+  document.getElementById('v_sent').value = '';
+  document.getElementById('v_note').value = '';
+}
+
+function openVisitFormExisting(clinic) {
+  prepVisitForm();
+  document.getElementById('visitFormMode').textContent = 'กรณีคลินิกเดิม';
+  const ci = document.getElementById('v_clinic');
+  ci.value = clinic; ci.readOnly = true;
+  document.getElementById('v_clinicHint').style.display = 'none';
+  goPage('page-visit-form');
+}
+
+function openVisitFormNew() {
+  prepVisitForm();
+  document.getElementById('visitFormMode').textContent = 'กรณีคลินิกใหม่';
+  const ci = document.getElementById('v_clinic');
+  ci.value = ''; ci.readOnly = false;
+  document.getElementById('v_clinicHint').style.display = 'block';
+  goPage('page-visit-form');
+}
+
+async function saveVisit() {
+  const date   = document.getElementById('v_date').value;
+  const sale   = document.getElementById('v_sale').value.trim();
+  const clinic = document.getElementById('v_clinic').value.trim();
+  if (!date)   { alert('กรุณาเลือกวันที่'); return; }
+  if (!sale)   { alert('กรุณาเลือกชื่อเซลล์'); return; }
+  if (!clinic) { alert('กรุณาระบุชื่อคลินิก'); return; }
+  showLoading('กำลังบันทึก...');
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'saveSaleVisit', payload: {
+        date: formatDateToThai(date),
+        saleName: sale,
+        clinic: clinic,
+        saleActivation: document.getElementById('v_act').value.trim(),
+        customerSentiment: document.getElementById('v_sent').value.trim(),
+        note: document.getElementById('v_note').value.trim()
+      } })
+    });
+    const r = await res.json();
+    hideLoading();
+    if (!r.success) { alert('บันทึกไม่สำเร็จ: ' + (r.error || '')); return; }
+    alert('บันทึก Sale Visit เรียบร้อย ✅');
+    goHome();
+  } catch (e) {
+    hideLoading();
+    alert('เชื่อมต่อไม่สำเร็จ: ' + e.message);
+  }
+}
 
 </script>
 
