@@ -1363,7 +1363,15 @@ function enterPmTeam() {
     const o = document.createElement('option'); o.value = m.key; o.textContent = m.label; monthSel.appendChild(o);
   });
   if (months.length) {
-    currentMonthKey = months[months.length - 1].key;  // ล่าสุด
+    const keys = months.map(m => m.key);
+    const now = new Date();
+    const curKey = '1/' + (now.getMonth() + 1) + '/' + ((now.getFullYear() + 543) - 2500);
+    if (keys.indexOf(curKey) >= 0) {
+      currentMonthKey = curKey;                       // เดือนปัจจุบัน
+    } else {
+      const dm = (PM_DATA.dataMonths || []).map(m => m.key).filter(k => keys.indexOf(k) >= 0);
+      currentMonthKey = dm.length ? dm[dm.length - 1] : keys[keys.length - 1];
+    }
     monthSel.value = currentMonthKey;
   } else {
     currentMonthKey = '';
@@ -1441,7 +1449,7 @@ function renderSellerBar(name) {
   const canvas = document.getElementById('sellerBar');
   const empty = document.getElementById('sellerBarEmpty');
   const sd = (PM_DATA.sellers || {})[name];
-  const months = PM_DATA.months || [];
+  const months = PM_DATA.dataMonths || [];
   if (sellerChart) { sellerChart.destroy(); sellerChart = null; }
   if (!sd || !months.length) { empty.style.display = 'block'; canvas.style.display = 'none'; return; }
   empty.style.display = 'none'; canvas.style.display = 'block';
