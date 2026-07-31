@@ -430,6 +430,14 @@
   .save-green { display:block; margin:8px 0 32px auto; background:#22c55e; color:#fff; border:none;
     border-radius:10px; padding:11px 32px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
 
+
+  /* ===================== PHASE 3 — Existing Clinic Search ===================== */
+  .list-sub { color: var(--brand); font-size: 12px; margin: -4px 0 10px; }
+  .clinic-row { background:#f3f4f6; border-radius:10px; padding:11px 13px; margin-bottom:8px; }
+  .clinic-row .c-name { font-size:14.5px; font-weight:600; color:var(--ink); }
+  .clinic-row .c-seller { font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  #clinicSearch { margin-bottom: 16px; }
+
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -448,7 +456,7 @@
     <div class="rp-inner">
       <img class="brand-logo js-logo" alt="HISTO LAB">
       <div class="home-btns">
-        <button class="home-btn white" onclick="showSoon('Existing Clinic Search')">Existing Clinic Search</button>
+        <button class="home-btn white" onclick="openClinicSearch()">Existing Clinic Search</button>
         <button class="home-btn white" onclick="openVisitSearch()">Update Sale Visit</button>
         <button class="home-btn white" onclick="openOrderSearch()">Order</button>
         <button class="home-btn dark" onclick="showSoon('Sale Visit Summary')">Sale Visit Summary</button>
@@ -547,6 +555,27 @@
   <!-- ============================================================ -->
   <!-- UPDATE SALE VISIT — search / pick clinic -->
   <!-- ============================================================ -->
+
+  <!-- ============================================================ -->
+  <!-- EXISTING CLINIC SEARCH (read-only directory) -->
+  <!-- ============================================================ -->
+  <div class="page rp" id="page-clinic-search">
+    <div class="rp-topbar">
+      <button class="rp-back" onclick="goHome()">&lt; Home</button>
+      <img class="brand-logo js-logo" alt="HISTO LAB">
+      <span class="rp-spacer"></span>
+    </div>
+    <div class="rp-inner">
+      <h2>Existing Clinic Search</h2>
+      <input class="rp-input" id="clinicSearch" placeholder="Search here..." oninput="renderClinicSearch()" autocomplete="off">
+      <div class="rcard">
+        <h3>รายชื่อคลินิกทั้งหมด</h3>
+        <div class="list-sub">เรียงตามตัวอักษร ก-ฮ &gt; A-Z</div>
+        <div id="clinicSearchList"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="page-visit-search">
     <div class="topbar">
       <button class="back-btn" onclick="goHome()" aria-label="ย้อนกลับ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -1703,6 +1732,35 @@ async function saveVisit() {
     hideLoading();
     alert('เชื่อมต่อไม่สำเร็จ: ' + e.message);
   }
+}
+
+/* =====================================================================
+   PHASE 3 — Existing Clinic Search (read-only)
+   ===================================================================== */
+let CLINIC_SEARCH_DATA = [];
+
+async function openClinicSearch() {
+  goPage('page-clinic-search');
+  document.getElementById('clinicSearch').value = '';
+  document.getElementById('clinicSearchList').innerHTML = '<div class="empty-note">กำลังโหลด...</div>';
+  try {
+    const r = await fetch(`${WEB_APP_URL}?action=getClinicList`).then(x => x.json());
+    CLINIC_SEARCH_DATA = (r && r.success) ? (r.clinics || []) : [];
+  } catch (e) { CLINIC_SEARCH_DATA = []; }
+  renderClinicSearch();
+}
+
+function renderClinicSearch() {
+  const box = document.getElementById('clinicSearchList');
+  const q = normStr(document.getElementById('clinicSearch').value);
+  const rows = CLINIC_SEARCH_DATA.filter(c => !q || normStr(c.clinic).indexOf(q) >= 0);
+  if (!rows.length) {
+    box.innerHTML = '<div class="empty-note">' + (q ? 'ไม่พบคลินิกที่ตรงกับคำค้น' : 'ยังไม่มีคลินิกในระบบ') + '</div>';
+    return;
+  }
+  box.innerHTML = rows.map(c =>
+    `<div class="clinic-row"><div class="c-name">${escapeHtml(c.clinic)}</div>`
+    + `<div class="c-seller">เซลล์ผู้รับผิดชอบ: ${escapeHtml(c.seller || '-')}</div></div>`).join('');
 }
 
 </script>
